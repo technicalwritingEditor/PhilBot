@@ -20,8 +20,20 @@ def Events(bot):
         await bot.add_roles(member, *roles)
         print("User", member.name, "Joined", member.server.id, "adding roles", rolesStr) 
 
+        joinMessage = Config.GetConfig(member.server.id, "JoinMessage")
+        #Adding user mentions.
+        splitJoinMessage = joinMessage.split()
+        i = 0
+        indexs = []
+        for char in splitJoinMessage:
+            if char == "@":
+                splitJoinMessage.pop(i)
+                splitJoinMessage.insert(i, member.mention)
+            i += 1
+        joinMessage = " ".join(splitJoinMessage)
+
         #Announcing user joining to server.
-        await bot.send_message(member.server.get_channel(GetConfig(member.server.id, "MainChannel")), GetConfig(member.server.id, "JoinMessage"))
+        await bot.send_message(member.server.get_channel(Config.GetConfig(member.server.id, "MainChannel")), joinMessage)
 
     @bot.event
     async def on_ready():
