@@ -4,4 +4,4 @@ PhilBot/Data
 
 PhilBot/BotConfig.json
 
-PhilBot/__pycache__
+__pycache__/
