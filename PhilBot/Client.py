@@ -4,18 +4,19 @@ from discord.ext.commands import Bot
 import sys
 import json
 import os
+import Helpers
+
+botConfig = '''{"Token" : ""}'''
 
 class Client():
     def __init__(self):
         self.botToken = ""
-        try:
+       
+        if not Helpers.CheckJson("BotConfig.json", botConfig):
             with open("BotConfig.json", 'r') as f:
-                self.botToken = json.load(f)["Token"]
+                config = json.load(f)
             f.close()
-        except:
-            with open("BotConfig.json", 'w') as f:
-                f.write(botConfig)
-            f.close()
+            self.botToken = config["Token"]
 
         if self.botToken == "":
             print("Please set bot token in BotConfig.Json")
