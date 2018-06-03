@@ -17,7 +17,8 @@ def SetConfig(id, key, args):
     print(id, "changed config value", key, "to :", dir[key])
 
 def GetConfig(id, key = ""):
-     for file in os.listdir("Data"):
+    "Gets config data from Servers(id) ServerConfig. If key is "" then returns full file." 
+    for file in os.listdir("Data"):
           if file == id:
               with open("Data/" + file + "/ServerConfig.json", 'r') as f:
                   if key != "":
