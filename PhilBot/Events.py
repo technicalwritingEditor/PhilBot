@@ -6,21 +6,21 @@ import json
 import os
 import shutil
 import sys
-import Config 
+from Config import Server, Roles
 import Helpers
 
 def Events(bot):
     @bot.event
     async def on_member_join(member):
         #Adding roles in servers StartRoles config.
-        rolesStr = Config.GetConfig(member.server.id, "JoinRoles")
+        rolesStr = Server.GetConfig(member.server.id, "JoinRoles")
         roles = []
         for role in rolesStr:
             roles.append(discord.utils.get(member.server.roles, name = role))
         await bot.add_roles(member, *roles)
         print("User", member.name, "Joined", member.server.id, "adding roles", rolesStr) 
 
-        joinMessage = Config.GetConfig(member.server.id, "JoinMessage")
+        joinMessage = Server.GetConfig(member.server.id, "JoinMessage")
         #Adding user mentions.
         splitJoinMessage = joinMessage.split()
         i = 0
@@ -33,7 +33,7 @@ def Events(bot):
         joinMessage = " ".join(splitJoinMessage)
 
         #Announcing user joining to server.
-        await bot.send_message(member.server.get_channel(Config.GetConfig(member.server.id, "MainChannel")), joinMessage)
+        await bot.send_message(member.server.get_channel(Server.GetConfig(member.server.id, "MainChannel")), joinMessage)
 
     @bot.event
     async def on_ready():
@@ -46,15 +46,29 @@ def Events(bot):
         await Helpers.UpdateData(bot) 
 
 def Commands(bot):
+    #Config
+    #Server
     @bot.command(pass_context = True)
-    async def getconfig(ctx, key):
-            await bot.say("Key of " + key + " is currently " + str(Config.GetConfig(ctx.message.server.id, key)))
-
+    async def config(ctx, key = "", *args):
+        if key != "":
+            if len(args) > 0:
+                Server.SetConfig(ctx.message.channel.server.id, key, args)
+            await bot.say(key + " is currently : " + str(Server.GetConfig(ctx.message.server.id, key)))
+        else:
+            await bot.say("Server config : " + str(Server.GetConfig(ctx.message.server.id)))
+   
+    #Roles
     @bot.command(pass_context = True)
-    async def config(ctx, key, *args):
-            Config.SetConfig(ctx.message.channel.server.id, key, args)
-            await bot.say("Key of " + key + " is now " + str(Config.GetConfig(ctx.message.server.id, key)))
+    async def role(ctx, *args):
+        if len(args) > 0:
+            Roles.SetRole(ctx.message.channel.server.id, args)
+        await bot.say("RolesConfig currently contains : " + str(Roles.GetRole(ctx.message.channel.server.id)))
+    
+    @bot.command(pass_context = True)
+    async def perm(ctx, key, *args):
+         Roles.SetPermissons(ctx.message.channel.server.id, key, args)
 
+    #General   
     @bot.command(pass_context = True)
     async def ping(ctx):
         await bot.say("Pong!")

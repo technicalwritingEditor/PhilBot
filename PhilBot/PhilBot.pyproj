@@ -25,7 +25,13 @@
     <Compile Include="Client.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Config.py">
+    <Compile Include="Config\Roles.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Config\Server.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Config\__init__.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Helpers.py">
@@ -37,8 +43,7 @@
     <Compile Include="Events.py" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Data\" />
-    <Folder Include="Commands\" />
+    <Folder Include="Config\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
