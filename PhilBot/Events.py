@@ -45,37 +45,46 @@ def Events(bot):
         print(server.id, "has added PhilBot.")
         await Helpers.UpdateData(bot) 
 
-def Commands(bot):
-    #Config
-    #Server
+def Config(bot):
+    @bot.command(pass_context = True)
+    async def powerbypass(ctx, arg):
+        if ctx.message.channel.permissions_for(ctx.message.author).administrator:
+            Server.SetConfig(ctx.message.channel.server.id, "AdminPowerBypass", arg)
+            await bot.say("AdminPowerBypass is now : " + str(Server.GetConfig(ctx.message.server.id, "AdminPowerBypass")))
+    
     @bot.command(pass_context = True)
     async def config(ctx, key = "", *args):
-        if key != "":
-            if len(args) > 0:
-                Server.SetConfig(ctx.message.channel.server.id, key, args)
-            await bot.say(key + " is currently : " + str(Server.GetConfig(ctx.message.server.id, key)))
-        else:
-            await bot.say("Server config : " + str(Server.GetConfig(ctx.message.server.id)))
+        if Helpers.CheckPermisson("config", ctx):
+            if key != "":
+                if len(args) > 0:
+                    Server.SetConfig(ctx.message.channel.server.id, key, args)
+                await bot.say(key + " is currently : " + str(Server.GetConfig(ctx.message.server.id, key)))
+            else:
+                await bot.say("Server config : " + str(Server.GetConfig(ctx.message.server.id)))
    
     #Roles
     @bot.command(pass_context = True)
     async def role(ctx, *args):
-        if len(args) > 0:
-            Roles.SetRole(ctx.message.channel.server.id, args)
-        await bot.say("RolesConfig currently contains : " + str(Roles.GetRole(ctx.message.channel.server.id)))
+        if Helpers.CheckPermisson("role", ctx):
+            if len(args) > 0:
+                Roles.SetRole(ctx.message.channel.server.id, args)
+            await bot.say("RolesConfig currently contains : " + str(Roles.GetRole(ctx.message.channel.server.id)))
     
     @bot.command(pass_context = True)
     async def perm(ctx, key, *args):
-         Roles.SetPermissons(ctx.message.channel.server.id, key, args)
+        if Helpers.CheckPermisson("perm", ctx): 
+            Roles.SetPermissons(ctx.message.channel.server.id, key, args)
+            await bot.say("RolesConfig currently contains : " + str(Roles.GetRole(ctx.message.channel.server.id)))
 
-    #General   
+def Commands(bot): 
     @bot.command(pass_context = True)
     async def ping(ctx):
-        await bot.say("Pong!")
+        if Helpers.CheckPermisson("ping", ctx):     
+            await bot.say("Pong!")
 
     @bot.command(pass_context = True)
     async def say(ctx, *args):
-        #Converting args to a string.
-        await bot.say(Helpers.ToString(args))
+        if Helpers.CheckPermisson("say", ctx): 
+            await bot.say(Helpers.ToString(args))
 
 

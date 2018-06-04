@@ -1,11 +1,12 @@
 import asyncio
 import os
-from Config import Server
+from Config import Server, Roles
 import json
 import shutil
+import inspect
 
-serverConfig = '''{"MainChannel" : "", "JoinRoles" : [],"StartMessage": "","JoinMessage": ""}'''
-#RolesConfig Format example: {SampleRole : {PermissionLevel : 3, Permissions : ["Perm1", "Perm1"]}}
+serverConfig = '''{"MainChannel" : "", "JoinRoles" : [],"StartMessage": "","JoinMessage": "", "AdminPowerBypass" : true}'''
+
 rolesConfig = '''{}'''
 
 def ToString(args):
@@ -97,3 +98,17 @@ def CheckJson(path, defaultJsonCode):
         return True
     else:
         return False
+
+def CheckPermisson(commandName, ctx):
+    "Checks if user has permission for command(commandName)"
+    if Server.GetConfig(ctx.message.server.id, "AdminPowerBypass"):
+        if ctx.message.channel.permissions_for(ctx.message.author).administrator: return True
+    
+    hasPerm = False
+    for role in ctx.message.author.roles:
+        if role.name in Roles.GetRole(ctx.message.server.id):
+            if commandName in Roles.GetRole(ctx.message.server.id, role.name,"Permissions"):
+                hasPerm = True
+    if hasPerm == False:
+        print("User does not have permission")
+    return hasPerm   
