@@ -33,17 +33,18 @@ def Events(bot):
         joinMessage = " ".join(splitJoinMessage)
 
         #Announcing user joining to server.
-        await bot.send_message(member.server.get_channel(Server.GetConfig(member.server.id, "MainChannel")), joinMessage)
+        await bot.say(member.server.get_channel(Server.GetConfig(member.server.id, "MainChannel")), joinMessage)
 
     @bot.event
     async def on_ready():
-        await Helpers.UpdateData(bot, True)
+        await Helpers.UpdateData(bot)
         print("Bot Up!")
 
     @bot.event 
     async def on_server_join(server):
         print(server.id, "has added PhilBot.")
         await Helpers.UpdateData(bot) 
+        await bot.send_message(server.get_channel(Server.GetConfig(server.id, "MainChannel")), Server.GetConfig(server.id,"StartMessage"))
 
 def Config(bot):
     @bot.command(pass_context = True)
@@ -54,7 +55,7 @@ def Config(bot):
     
     @bot.command(pass_context = True)
     async def config(ctx, key = "", *args):
-        if Helpers.CheckPermisson("config", ctx):
+        if await Helpers.CheckPermisson(bot, "config", ctx):
             if key != "":
                 if len(args) > 0:
                     Server.SetConfig(ctx.message.channel.server.id, key, args)
@@ -65,26 +66,26 @@ def Config(bot):
     #Roles
     @bot.command(pass_context = True)
     async def role(ctx, *args):
-        if Helpers.CheckPermisson("role", ctx):
+        if await Helpers.CheckPermisson(bot, "role", ctx):
             if len(args) > 0:
                 Roles.SetRole(ctx.message.channel.server.id, args)
             await bot.say("RolesConfig currently contains : " + str(Roles.GetRole(ctx.message.channel.server.id)))
     
     @bot.command(pass_context = True)
     async def perm(ctx, key, *args):
-        if Helpers.CheckPermisson("perm", ctx): 
+        if await Helpers.CheckPermisson(bot, "perm", ctx): 
             Roles.SetPermissons(ctx.message.channel.server.id, key, args)
             await bot.say("RolesConfig currently contains : " + str(Roles.GetRole(ctx.message.channel.server.id)))
 
 def Commands(bot): 
     @bot.command(pass_context = True)
     async def ping(ctx):
-        if Helpers.CheckPermisson("ping", ctx):     
+        if await Helpers.CheckPermisson(bot, "ping", ctx):     
             await bot.say("Pong!")
 
     @bot.command(pass_context = True)
     async def say(ctx, *args):
-        if Helpers.CheckPermisson("say", ctx): 
+        if await Helpers.CheckPermisson(bot, "say", ctx): 
             await bot.say(Helpers.ToString(args))
 
 

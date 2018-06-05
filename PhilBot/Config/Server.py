@@ -12,12 +12,14 @@ def SetConfig(id, key, args):
         args = list(args)
     if type(args) == str:
         args = [args]
+    if type(args) == bool:
+        args = [args]
 
     #Converting string bool to bool type.
     if type(dir[key]) == bool:
-        if args[0] == "true":
+        if args[0] == "true" or args[0] == True:
             args[0] = True
-        if args[0] == "false":
+        if args[0] == "false" or args[0] == False:
             args[0] = False
     
     #Checking if key and args types match.
