@@ -23,6 +23,9 @@ def ToString(args):
     return string
 
 async def UpdateData(bot, sendStartMessage = False):
+    "Getting a new version of serverConfig to compare with server instance for updating"
+    emptyServerConfig = json.loads(serverConfig)
+    
     """Updates Data files"""
     for server in bot.servers:
         serverPath = "Data/" + server.id
@@ -48,7 +51,29 @@ async def UpdateData(bot, sendStartMessage = False):
             Server.SetConfig(server.id, "MainChannel", selectedChannel.id + "")
             Server.SetConfig(server.id, "JoinMessage", "**Welcome @ to the server!**")
             Server.SetConfig(server.id, "StartMessage", "**This bot has restarted**")
-      
+        
+        #Updating serverJson with newest keys
+        with open("Data/" + server.id + "/ServerConfig.json", 'r') as f:
+               dir = json.load(f)
+        f.close()
+        
+        #Adding new keys
+        for key in emptyServerConfig:
+            if key not in dir:
+                dir[key] = emptyServerConfig[key]
+                print("Adding key:", key, "to", server.id)
+        #Removing old keys
+        removeKeys = []
+        for key in dir:
+            if key not in emptyServerConfig:
+                removeKeys.append(key)
+                print("Removing key:", key, "from", server.id)
+        for key in removeKeys:
+            dir.pop(key)
+        
+        with open("Data/" + server.id + "/ServerConfig.json", 'w') as f:
+            json.dump(dir, f)
+
         #RolesConfig
         CheckJson(serverPath + "/RolesConfig.json", rolesConfig)
 
