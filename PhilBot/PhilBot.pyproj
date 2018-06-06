@@ -37,6 +37,9 @@
     <Compile Include="Config\__init__.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Decorators.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Helpers.py">
       <SubType>Code</SubType>
     </Compile>

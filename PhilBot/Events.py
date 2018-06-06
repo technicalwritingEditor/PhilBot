@@ -45,14 +45,13 @@ def Events(bot):
               else:
                   if Helpers.CheckPermisson(bot, command, message):
                       #Custom command code
-                      functions = CustomCommands.GetCommandFunctions(message.channel.server.id, command)
-                      print(command, args)
+                      functions = CustomCommands.GetFunctions(message.channel.server.id, command)
                   
                       #Logic for custom command functions
                       if "AddRoles" in functions:
-                          await Helpers.GiveRoles(bot, discord.utils.get(message.server.members, name = args[0]), CustomCommands.GetCommandFunctionsAttributes(message.channel.server.id, command, "AddRoles"))
+                          await Helpers.GiveRoles(bot, discord.utils.get(message.server.members, name = args[0]), CustomCommands.GetAttributes(message.channel.server.id, command, "AddRoles"))
                       if "Say" in functions:
-                          await bot.send_message(message.channel, CustomCommands.GetCommandFunctionsAttributes(message.channel.server.id, command, "Say")[0])
+                          await bot.send_message(message.channel, CustomCommands.GetAttributes(message.channel.server.id, command, "Say")[0])
                   else: await bot.send_message(message.channel, Server.GetConfig(message.server.id, "NoPermissonMessage")) 
 
 def Config(bot):
@@ -103,6 +102,6 @@ def Commands(bot):
 
     @bot.command(pass_context = True)
     async def attribute(ctx, command, attribute, *args):
-        CustomCommands.SetCommandFunctionsAttributes(ctx.message.channel.server.id, command, attribute, args)
+        CustomCommands.SetFunctionAttributes(ctx.message.channel.server.id, command, attribute, args)
             
 

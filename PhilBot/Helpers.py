@@ -115,16 +115,34 @@ async def CheckFileIntegrity(bot):
         if deleteFile:
             shutil.rmtree("Data/" + file)
 
-def ManageMultipleInput(origin, args):
-    "Removes or adds args to origin. **FOR LIST**"
-    if(type(origin) == list):
+def ManageMultipleInput(origin, args, dictDefault = None):
+    "Removes or adds args to origin."
+    if type(origin) == list:
        for object in args:
            if object in origin:
                origin.remove(object)
            else:
                origin.append(object)
-    else:
+
+    if type(origin) == dict:
+        for arg in args:
+            if arg in origin:
+                origin.pop(arg)
+            else:
+                origin[arg] = dictDefault
+
+    if type(origin) == str:
         origin = ToString(args)
+   
+    if type(origin) == bool:
+        if type(args) != list:
+            args = [args]
+        
+        if args[0] == "true":
+            origin = True
+        if args[0] == "false":
+            origin = False
+
     return origin
 
 def CheckJson(path, defaultJsonCode):

@@ -1,45 +1,24 @@
 import os
 import json
 import Helpers
+import Decorators
 
-roleConfig = {"PermissionLevel" : 0, "Permissions" : []}
+roleConfig = {"Permissions" : []}
 
-def SetRole(id, args):
+@Decorators.ReadWriteJson("Data/" + "*id*" + "/RolesConfig.json")
+def SetRole(id, args, jsonFile):
     "Adds role to id(server)s RolesConfig"
-    #Reading roles config file.
-    with open("Data/" + id + "/RolesConfig.json", 'r') as f:
-        dic = json.load(f)
-    f.close()
     
-    for arg in args:
-        if arg in dic:
-            dic.pop(arg)
-        else:
-            dic[arg] = roleConfig
+    jsonFile = Helpers.ManageMultipleInput(jsonFile, args, roleConfig)
+    print(id, "RolesConfig was changed to", jsonFile)
+    return jsonFile
 
-    #Setting Role config file.
-    with open("Data/" + id + "/RolesConfig.json", 'w') as f:
-        json.dump(dic, f)
-    print(id, "RolesConfig was changed to", dic)
-
-def SetPermissons(id, key, args):   
+@Decorators.ReadWriteJson("Data/" + "*id*" + "/RolesConfig.json")
+def SetPermissons(id, key, args, jsonFile):   
     "Sets role(key) from server(id) to args"
-    #Reading roles config file.
-    with open("Data/" + id + "/RolesConfig.json", 'r') as f:
-        dic = json.load(f)
-    f.close()
-  
-    #Setting values
-    try:
-        dic[key]["PermissionLevel"] = int(args[0])
-        print(id, "changed role config ", key, "PermissionLevel", ":", dic[key]["PermissionLevel"])
-    except:
-        dic[key]["Permissions"] = Helpers.ManageMultipleInput(dic[key]["Permissions"], args)
-        print(id, "changed role config ", key, "Permissions", ":", dic[key]["Permissions"])
-   
-    #Setting Role config file.
-    with open("Data/" + id + "/RolesConfig.json", 'w') as f:
-        json.dump(dic, f)
+
+    jsonFile[key]["Permissions"] = Helpers.ManageMultipleInput(jsonFile[key]["Permissions"], args)
+    return jsonFile
 
 def GetRole(id, key = "", subKey = ""):
     "Gets the role from server. If no subKey is specified returns full role. If no key is specified returns all roles"
