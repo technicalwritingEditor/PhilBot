@@ -4,10 +4,12 @@ from Config import Server, Roles
 import json
 import shutil
 import inspect
+import discord
 
 serverConfig = '''{"MainChannel" : "", "JoinRoles" : [],"StartMessage": "","JoinMessage": "", "AdminPowerBypass" : true, "NoPermissonMessage" : ""}'''
 
 rolesConfig = '''{}'''
+commandConfig = '''{}'''
 
 def ToString(args):
     "Converts iterables of strings to a single string."
@@ -86,12 +88,10 @@ def UpdateConfigKeys(server):
         json.dump(dir, f)
 
 
-async def UpdateData(bot):
-    "Getting a new version of serverConfig to compare with server instance for updating."
+async def CheckFileIntegrity(bot):
+    "Checks and fixes the file integrity of Data"
    
     emptyServerConfig = json.loads(serverConfig)
-    
-    """Updates Data files"""
     for server in bot.servers:
         serverPath = "Data/" + server.id
         
@@ -99,6 +99,7 @@ async def UpdateData(bot):
         if not os.path.exists(serverPath):
             os.makedirs(serverPath)
         CheckJson(serverPath + "/RolesConfig.json", rolesConfig)
+        CheckJson(serverPath + "/CommandConfig.json", commandConfig)
 
         if CheckJson(serverPath + "/ServerConfig.json", serverConfig):
             SetDefaultConfigValues(server)
@@ -149,17 +150,27 @@ def CheckJson(path, defaultJsonCode):
     else:
         return False
 
-async def CheckPermisson(bot, commandName, ctx):
+def CheckPermisson(bot, commandName, message):
     "Checks if user has permission for command(commandName)."
    
-    if Server.GetConfig(ctx.message.server.id, "AdminPowerBypass"):
-        if ctx.message.channel.permissions_for(ctx.message.author).administrator: return True
-    
+    if Server.GetConfig(message.server.id, "AdminPowerBypass"):
+        if message.channel.permissions_for(message.author).administrator: return True
+   
     hasPerm = False
-    for role in ctx.message.author.roles:
-        if role.name in Roles.GetRole(ctx.message.server.id):
-            if commandName in Roles.GetRole(ctx.message.server.id, role.name,"Permissions"):
+    for role in message.author.roles:
+        if role.name in Roles.GetRole(message.server.id):
+            if commandName in Roles.GetRole(message.server.id, role.name,"Permissions"):
                 hasPerm = True
-    if hasPerm == False:
-        await bot.send_message(ctx.message.channel, Server.GetConfig(ctx.message.server.id, "NoPermissonMessage"))
     return hasPerm  
+
+async def GiveRoles(bot, member, args):
+    #Adds/removes roles in servers StartRoles config to member.
+    memberRoles = member.roles
+    for role in args:
+        roleData = discord.utils.get(member.server.roles, name = role)
+        if roleData in memberRoles:
+            memberRoles.remove(roleData)
+        else:
+            memberRoles.append(roleData)
+
+    await bot.replace_roles(member, *memberRoles)

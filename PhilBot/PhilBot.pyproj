@@ -25,6 +25,9 @@
     <Compile Include="Client.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Config\CustomCommands.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Config\Roles.py">
       <SubType>Code</SubType>
     </Compile>

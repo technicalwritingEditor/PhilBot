@@ -6,45 +6,54 @@ import json
 import os
 import shutil
 import sys
-from Config import Server, Roles
+from Config import Server, Roles, CustomCommands
 import Helpers
 
 def Events(bot):
     @bot.event
     async def on_member_join(member):
         #Adding roles in servers StartRoles config.
-        rolesStr = Server.GetConfig(member.server.id, "JoinRoles")
-        roles = []
-        for role in rolesStr:
-            roles.append(discord.utils.get(member.server.roles, name = role))
-        await bot.add_roles(member, *roles)
-        print("User", member.name, "Joined", member.server.id, "adding roles", rolesStr) 
-
-        joinMessage = Server.GetConfig(member.server.id, "JoinMessage")
-        #Adding user mentions.
-        splitJoinMessage = joinMessage.split()
-        i = 0
-        indexs = []
-        for char in splitJoinMessage:
-            if char == "@":
-                splitJoinMessage.pop(i)
-                splitJoinMessage.insert(i, member.mention)
-            i += 1
-        joinMessage = " ".join(splitJoinMessage)
+        await Helpers.GiveRoles(bot, member, Server.GetConfig(member.server.id, "JoinRoles"))
 
         #Announcing user joining to server.
-        await bot.say(member.server.get_channel(Server.GetConfig(member.server.id, "MainChannel")), joinMessage)
+        joinMessage = Server.GetConfig(member.server.id, "JoinMessage").replace("@", member.mention)
+        await bot.send_message(member.server.get_channel(Server.GetConfig(member.server.id, "MainChannel")), joinMessage)
 
     @bot.event
     async def on_ready():
-        await Helpers.UpdateData(bot)
+        await Helpers.CheckFileIntegrity(bot)
         print("Bot Up!")
 
     @bot.event 
     async def on_server_join(server):
         print(server.id, "has added PhilBot.")
-        await Helpers.UpdateData(bot) 
+        await Helpers.CheckFileIntegrity(bot) 
         await bot.send_message(server.get_channel(Server.GetConfig(server.id, "MainChannel")), Server.GetConfig(server.id,"StartMessage"))
+
+    @bot.event
+    async def on_message(message):
+        if not message.author.bot:
+          print("Message sent by", message.author, ":", message.content)
+          if message.content[0] == "!": 
+              args = message.content.split(" ")
+              command = args[0].lstrip("!")
+              args.pop(0)
+              if command not in CustomCommands.GetCommands(message.channel.server.id):
+                  if Helpers.CheckPermisson(bot, command, message) or command == "powerbypass" and message.channel.permissions_for(message.author).administrator:
+                      await bot.process_commands(message)
+                  else: await bot.send_message(message.channel, Server.GetConfig(message.server.id, "NoPermissonMessage")) 
+              else:
+                  if Helpers.CheckPermisson(bot, command, message):
+                      #Custom command code
+                      functions = CustomCommands.GetCommandFunctions(message.channel.server.id, command)
+                      print(command, args)
+                  
+                      #Logic for custom command functions
+                      if "AddRoles" in functions:
+                          await Helpers.GiveRoles(bot, discord.utils.get(message.server.members, name = args[0]), CustomCommands.GetCommandFunctionsAttributes(message.channel.server.id, command, "AddRoles"))
+                      if "Say" in functions:
+                          await bot.send_message(message.channel, CustomCommands.GetCommandFunctionsAttributes(message.channel.server.id, command, "Say")[0])
+                  else: await bot.send_message(message.channel, Server.GetConfig(message.server.id, "NoPermissonMessage")) 
 
 def Config(bot):
     @bot.command(pass_context = True)
@@ -55,37 +64,45 @@ def Config(bot):
     
     @bot.command(pass_context = True)
     async def config(ctx, key = "", *args):
-        if await Helpers.CheckPermisson(bot, "config", ctx):
-            if key != "":
-                if len(args) > 0:
-                    Server.SetConfig(ctx.message.channel.server.id, key, args)
-                await bot.say(key + " is currently : " + str(Server.GetConfig(ctx.message.server.id, key)))
-            else:
-                await bot.say("Server config : " + str(Server.GetConfig(ctx.message.server.id)))
+        if key != "":
+            if len(args) > 0:
+                Server.SetConfig(ctx.message.channel.server.id, key, args)
+            await bot.say(key + " is currently : " + str(Server.GetConfig(ctx.message.server.id, key)))
+        else:
+            await bot.say("Server config : " + str(Server.GetConfig(ctx.message.server.id)))
    
     #Roles
     @bot.command(pass_context = True)
     async def role(ctx, *args):
-        if await Helpers.CheckPermisson(bot, "role", ctx):
-            if len(args) > 0:
-                Roles.SetRole(ctx.message.channel.server.id, args)
-            await bot.say("RolesConfig currently contains : " + str(Roles.GetRole(ctx.message.channel.server.id)))
+        if len(args) > 0:
+            Roles.SetRole(ctx.message.channel.server.id, args)
+        await bot.say("RolesConfig currently contains : " + str(Roles.GetRole(ctx.message.channel.server.id)))
     
     @bot.command(pass_context = True)
     async def perm(ctx, key, *args):
-        if await Helpers.CheckPermisson(bot, "perm", ctx): 
-            Roles.SetPermissons(ctx.message.channel.server.id, key, args)
-            await bot.say("RolesConfig currently contains : " + str(Roles.GetRole(ctx.message.channel.server.id)))
+        Roles.SetPermissons(ctx.message.channel.server.id, key, args)
+        await bot.say("RolesConfig currently contains : " + str(Roles.GetRole(ctx.message.channel.server.id)))
 
 def Commands(bot): 
     @bot.command(pass_context = True)
     async def ping(ctx):
-        if await Helpers.CheckPermisson(bot, "ping", ctx):     
-            await bot.say("Pong!")
+        await bot.say("Pong!")
 
     @bot.command(pass_context = True)
     async def say(ctx, *args):
-        if await Helpers.CheckPermisson(bot, "say", ctx): 
-            await bot.say(Helpers.ToString(args))
+        await bot.say(Helpers.ToString(args))
+   
+    #Commands
+    @bot.command(pass_context = True)
+    async def command(ctx, *args):
+        CustomCommands.AddCommand(ctx.message.channel.server.id, args)
+    
+    @bot.command(pass_context = True)
+    async def function(ctx, command, *args):
+        CustomCommands.AddFunctions(ctx.message.channel.server.id, command, args)
 
+    @bot.command(pass_context = True)
+    async def attribute(ctx, command, attribute, *args):
+        CustomCommands.SetCommandFunctionsAttributes(ctx.message.channel.server.id, command, attribute, args)
+            
 

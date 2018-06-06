@@ -53,4 +53,3 @@ def GetRole(id, key = "", subKey = ""):
             return dic[key][subKey]
     else:
         return dic
-    
