@@ -192,3 +192,11 @@ async def GiveRoles(bot, member, args):
             memberRoles.append(roleData)
 
     await bot.replace_roles(member, *memberRoles)
+
+def HasRoles(bot, member, args):
+    hasAllRoles = True;
+    for role in args:
+       roleData = discord.utils.get(member.server.roles, name = role)
+       if roleData not in member.roles:
+           hasAllRoles = False
+    return hasAllRoles

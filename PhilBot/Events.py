@@ -32,12 +32,37 @@ def Events(bot):
 
     @bot.event
     async def on_message(message):
+        def CheckConditionals(dic, targetMember):
+            doExecute = True
+            if "containsroles" in dic:
+                if not Helpers.HasRoles(bot, targetMember, dic["containsroles"]):
+                    doExecute = False
+            if "haspermisson" in dic:
+                for perm in dic["haspermisson"]:
+                    if not Helpers.CheckPermisson(bot, perm, message):
+                        doExecute = False
+            return doExecute
+        
+        async def ExecuteAttributes(bot, dic, targetMember):
+             #Executing layer one attributes
+             if "addroles" in dic:
+                 await Helpers.GiveRoles(bot, target, dic["addroles"])
+             if "say" in dic:
+                 
+                 await bot.send_message(message.channel, dic["say"][0]) 
+
         if not message.author.bot:
           print("Message sent by", message.author, ":", message.content)
           if message.content[0] == "!": 
               args = message.content.split(" ")
               command = args[0].lstrip("!")
+              #Removing "!commandname" from args
               args.pop(0)
+              if len(args) == 0:
+                  target = message.author 
+              else: 
+                  target = discord.utils.get(message.server.members, name = args[0])
+
               if command not in CustomCommands.GetCommands(message.channel.server.id):
                   if Helpers.CheckPermisson(bot, command, message) or command == "powerbypass" and message.channel.permissions_for(message.author).administrator:
                       await bot.process_commands(message)
@@ -45,13 +70,18 @@ def Events(bot):
               else:
                   if Helpers.CheckPermisson(bot, command, message):
                       #Custom command code
-                      functions = CustomCommands.GetFunctions(message.channel.server.id, command)
-                  
-                      #Logic for custom command functions
-                      if "AddRoles" in functions:
-                          await Helpers.GiveRoles(bot, discord.utils.get(message.server.members, name = args[0]), CustomCommands.GetAttributes(message.channel.server.id, command, "AddRoles"))
-                      if "Say" in functions:
-                          await bot.send_message(message.channel, CustomCommands.GetAttributes(message.channel.server.id, command, "Say")[0])
+                      commandDic = CustomCommands.GetCommand(message.server.id, command)
+                      
+                      await ExecuteAttributes(bot, commandDic, target)
+
+                      #Executing conditions
+                      for block in commandDic["if"]:
+                          if CheckConditionals(commandDic["if"][block], target):
+                              await ExecuteAttributes(bot, commandDic["if"][block], target)
+
+                      for block in commandDic["ifnot"]:
+                          if not CheckConditionals(commandDic["ifnot"][block], target):
+                              await ExecuteAttributes(bot, commandDic["ifnot"][block], target)
                   else: await bot.send_message(message.channel, Server.GetConfig(message.server.id, "NoPermissonMessage")) 
 
 def Config(bot):
@@ -91,17 +121,27 @@ def Commands(bot):
     async def say(ctx, *args):
         await bot.say(Helpers.ToString(args))
    
-    #Commands
+    #Custom commands
     @bot.command(pass_context = True)
     async def command(ctx, *args):
-        CustomCommands.AddCommand(ctx.message.channel.server.id, args)
+        CustomCommands.SetCommand(ctx.message.channel.server.id, args)
+   
+    @bot.command(pass_context = True)
+    async def conditionblock(ctx, command, type, *args):
+        CustomCommands.SetConditionBlock(ctx.message.channel.server.id, command, type, args)
     
     @bot.command(pass_context = True)
-    async def function(ctx, command, *args):
-        CustomCommands.AddFunctions(ctx.message.channel.server.id, command, args)
+    async def attribute(ctx, command, *args):
+        CustomCommands.SetAttribute(ctx.message.channel.server.id, command, args)
+   
+    @bot.command(pass_context = True)
+    async def attributevalue(ctx, command, attribute, *args):
+        CustomCommands.SetAttributeValue(ctx.message.channel.server.id, command, attribute, args)
+    
+    @bot.command(pass_context = True)
+    async def blockattribute(ctx, command, type, block, *args):
+        CustomCommands.SetBlockAttribute(ctx.message.channel.server.id, command, type, block, args)
 
     @bot.command(pass_context = True)
-    async def attribute(ctx, command, attribute, *args):
-        CustomCommands.SetFunctionAttributes(ctx.message.channel.server.id, command, attribute, args)
-            
-
+    async def blockattributevalue(ctx, command, type, block, condition, *args):
+        CustomCommands.SetBlockAttributeValue(ctx.message.channel.server.id, command, type, block, condition, args)
