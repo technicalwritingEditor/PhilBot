@@ -38,7 +38,7 @@ def SetAttributeValue(id, command, attribute, args, jsonFile):
     return jsonFile
 
 @Decorators.ReadWriteJson(dataPath)    
-def SetConditionBlock(id, command, type, args, jsonFile):
+def SetBlock(id, command, type, args, jsonFile):
     if type == "if" or type == "ifnot": 
         jsonFile[command][type] = Helpers.ManageMultipleInput(jsonFile[command][type], args, {})
     print(id, "Command Config was changed to", jsonFile)

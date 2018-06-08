@@ -21,8 +21,10 @@ def Events(bot):
 
     @bot.event
     async def on_ready():
-        await Helpers.CheckFileIntegrity(bot)
+        await Helpers.CheckFileIntegrity(bot) 
         print("Bot Up!")
+        for server in bot.servers:
+            await bot.send_message(server.get_channel(Server.GetConfig(server.id, "MainChannel")), Server.GetConfig(server.id,"StartMessage"))
 
     @bot.event 
     async def on_server_join(server):
@@ -127,8 +129,8 @@ def Commands(bot):
         CustomCommands.SetCommand(ctx.message.channel.server.id, args)
    
     @bot.command(pass_context = True)
-    async def conditionblock(ctx, command, type, *args):
-        CustomCommands.SetConditionBlock(ctx.message.channel.server.id, command, type, args)
+    async def block(ctx, command, type, *args):
+        CustomCommands.SetBlock(ctx.message.channel.server.id, command, type, args)
     
     @bot.command(pass_context = True)
     async def attribute(ctx, command, *args):
