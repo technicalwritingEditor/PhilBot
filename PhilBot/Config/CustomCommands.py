@@ -13,7 +13,9 @@ addRolesAttribute = []
 functionConfig = {}
 commandConfig = {"if": {}, "ifnot": {}}
 
-@Decorators.ReadWriteJson("Data/" + "*id*" + "/CommandConfig.json")    
+dataPath = "Data/" + "*id*" + "/CommandConfig.json"
+
+@Decorators.ReadWriteJson(dataPath)    
 def SetCommand(id, args, jsonFile):
     "Adds role to id(server)s RolesConfig."
 
@@ -21,7 +23,7 @@ def SetCommand(id, args, jsonFile):
     print(id, "Command Config was changed to", jsonFile)
     return jsonFile
 
-@Decorators.ReadWriteJson("Data/" + "*id*" + "/CommandConfig.json")    
+@Decorators.ReadWriteJson(dataPath)    
 def SetAttribute(id, command, args, jsonFile):
     "Adds role to id(server)s RolesConfig."
 
@@ -29,26 +31,26 @@ def SetAttribute(id, command, args, jsonFile):
     print(id, "Command Config was changed to", jsonFile)
     return jsonFile
 
-@Decorators.ReadWriteJson("Data/" + "*id*" + "/CommandConfig.json")    
+@Decorators.ReadWriteJson(dataPath)    
 def SetAttributeValue(id, command, attribute, args, jsonFile):
     jsonFile[command][attribute] = Helpers.ManageMultipleInput(jsonFile[command][attribute], args)
     print(id, "Command Config was changed to", jsonFile)
     return jsonFile
 
-@Decorators.ReadWriteJson("Data/" + "*id*" + "/CommandConfig.json")    
+@Decorators.ReadWriteJson(dataPath)    
 def SetConditionBlock(id, command, type, args, jsonFile):
     if type == "if" or type == "ifnot": 
         jsonFile[command][type] = Helpers.ManageMultipleInput(jsonFile[command][type], args, {})
     print(id, "Command Config was changed to", jsonFile)
     return jsonFile
 
-@Decorators.ReadWriteJson("Data/" + "*id*" + "/CommandConfig.json")    
+@Decorators.ReadWriteJson(dataPath)    
 def SetBlockAttribute(id, command, type, block, args, jsonFile):
     jsonFile[command][type][block] = Helpers.ManageMultipleInput(jsonFile[command][type][block], args, [])
     print(id, "Command Config was changed to", jsonFile)
     return jsonFile
 
-@Decorators.ReadWriteJson("Data/" + "*id*" + "/CommandConfig.json")    
+@Decorators.ReadWriteJson(dataPath)    
 def SetBlockAttributeValue(id, command, type, block, condition, args, jsonFile):
     jsonFile[command][type][block][condition] = Helpers.ManageMultipleInput(jsonFile[command][type][block][condition], args)
     print(id, "Command Config was changed to", jsonFile)

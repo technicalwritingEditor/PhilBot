@@ -5,7 +5,9 @@ import Decorators
 
 roleConfig = {"Permissions" : []}
 
-@Decorators.ReadWriteJson("Data/" + "*id*" + "/RolesConfig.json")
+dataPath = "Data/" + "*id*" + "/RolesConfig.json"
+
+@Decorators.ReadWriteJson(dataPath)
 def SetRole(id, args, jsonFile):
     "Adds role to id(server)s RolesConfig"
     
@@ -13,7 +15,7 @@ def SetRole(id, args, jsonFile):
     print(id, "RolesConfig was changed to", jsonFile)
     return jsonFile
 
-@Decorators.ReadWriteJson("Data/" + "*id*" + "/RolesConfig.json")
+@Decorators.ReadWriteJson(dataPath)
 def SetPermissons(id, key, args, jsonFile):   
     "Sets role(key) from server(id) to args"
 

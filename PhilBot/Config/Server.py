@@ -3,7 +3,8 @@ import json
 import Helpers
 import Decorators
 
-@Decorators.ReadWriteJson("Data/" + "*id*" + "/ServerConfig.json")
+dataPath = "Data/" + "*id*" + "/ServerConfig.json"
+@Decorators.ReadWriteJson(dataPath)
 def SetConfig(id, key, args, jsonFile):
     jsonFile[key] = Helpers.ManageMultipleInput(jsonFile[key], args)
     print(id, "changed config value", key, "to :", jsonFile[key])
