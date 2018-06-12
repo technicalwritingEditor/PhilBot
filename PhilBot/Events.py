@@ -50,8 +50,8 @@ def Events(bot):
              if "addroles" in dic:
                  await Helpers.GiveRoles(bot, target, dic["addroles"])
              if "say" in dic:
-                 
-                 await bot.send_message(message.channel, dic["say"][0]) 
+                 sayMessage = dic["say"][0].replace("@", targetMember.mention)
+                 await bot.send_message(message.channel, sayMessage) 
 
         if not message.author.bot:
           print("Message sent by", message.author, ":", message.content)
