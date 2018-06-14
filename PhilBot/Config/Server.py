@@ -54,7 +54,7 @@ def Config(id, file, args):
         #Making changes to specified config 
         if file == "ServerConfig.json":
             if len(argsLists) == 2:
-                jsonFile[argsLists[0][0]] = Helpers.ManageMultipleInput(jsonFile[argsLists[0][0]], argsLists[1][0])
+                jsonFile[argsLists[0][0]] = Helpers.ManageMultipleInput(jsonFile[argsLists[0][0]], argsLists[1])
 
         if file == "RolesConfig.json":
             #Adding roles
