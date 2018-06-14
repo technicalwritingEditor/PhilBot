@@ -9,7 +9,7 @@ import sys
 from Config import Server, Roles, CustomCommands
 import Helpers
 
-def Events(bot):
+def DiscordEvents(bot):
     @bot.event
     async def on_member_join(member):
         #Adding roles in servers StartRoles config.
@@ -21,7 +21,7 @@ def Events(bot):
 
     @bot.event
     async def on_ready():
-        await Helpers.CheckFileIntegrity(bot) 
+        Helpers.CheckFileIntegrity(bot)
         print("Bot Up!")
         for server in bot.servers:
             await bot.send_message(server.get_channel(Server.GetConfig(server.id, "MainChannel")), Server.GetConfig(server.id,"StartMessage"))
@@ -29,7 +29,6 @@ def Events(bot):
     @bot.event 
     async def on_server_join(server):
         print(server.id, "has added PhilBot.")
-        await Helpers.CheckFileIntegrity(bot) 
         await bot.send_message(server.get_channel(Server.GetConfig(server.id, "MainChannel")), Server.GetConfig(server.id,"StartMessage"))
 
     @bot.event
@@ -88,62 +87,15 @@ def Events(bot):
 
 def Config(bot):
     @bot.command(pass_context = True)
+    async def config(ctx, file, *args):
+        returnedValue = Server.Config(ctx.message.channel.server.id, file, args)
+        if returnedValue != None:
+            await bot.say(file + " config is now : " + str(returnedValue))
+        else:
+            await bot.say(file + " does not exist")
+    
+    @bot.command(pass_context = True)
     async def powerbypass(ctx, arg):
         if ctx.message.channel.permissions_for(ctx.message.author).administrator:
             Server.SetConfig(ctx.message.channel.server.id, "AdminPowerBypass", arg)
             await bot.say("AdminPowerBypass is now : " + str(Server.GetConfig(ctx.message.server.id, "AdminPowerBypass")))
-    
-    @bot.command(pass_context = True)
-    async def config(ctx, key = "", *args):
-        if key != "":
-            if len(args) > 0:
-                Server.SetConfig(ctx.message.channel.server.id, key, args)
-            await bot.say(key + " is currently : " + str(Server.GetConfig(ctx.message.server.id, key)))
-        else:
-            await bot.say("Server config : " + str(Server.GetConfig(ctx.message.server.id)))
-   
-    #Roles
-    @bot.command(pass_context = True)
-    async def role(ctx, *args):
-        if len(args) > 0:
-            Roles.SetRole(ctx.message.channel.server.id, args)
-        await bot.say("RolesConfig currently contains : " + str(Roles.GetRole(ctx.message.channel.server.id)))
-    
-    @bot.command(pass_context = True)
-    async def perm(ctx, key, *args):
-        Roles.SetPermissons(ctx.message.channel.server.id, key, args)
-        await bot.say("RolesConfig currently contains : " + str(Roles.GetRole(ctx.message.channel.server.id)))
-
-def Commands(bot): 
-    @bot.command(pass_context = True)
-    async def ping(ctx):
-        await bot.say("Pong!")
-
-    @bot.command(pass_context = True)
-    async def say(ctx, *args):
-        await bot.say(Helpers.ToString(args))
-   
-    #Custom commands
-    @bot.command(pass_context = True)
-    async def command(ctx, *args):
-        CustomCommands.SetCommand(ctx.message.channel.server.id, args)
-   
-    @bot.command(pass_context = True)
-    async def block(ctx, command, type, *args):
-        CustomCommands.SetBlock(ctx.message.channel.server.id, command, type, args)
-    
-    @bot.command(pass_context = True)
-    async def attribute(ctx, command, *args):
-        CustomCommands.SetAttribute(ctx.message.channel.server.id, command, args)
-   
-    @bot.command(pass_context = True)
-    async def attributevalue(ctx, command, attribute, *args):
-        CustomCommands.SetAttributeValue(ctx.message.channel.server.id, command, attribute, args)
-    
-    @bot.command(pass_context = True)
-    async def blockattribute(ctx, command, type, block, *args):
-        CustomCommands.SetBlockAttribute(ctx.message.channel.server.id, command, type, block, args)
-
-    @bot.command(pass_context = True)
-    async def blockattributevalue(ctx, command, type, block, condition, *args):
-        CustomCommands.SetBlockAttributeValue(ctx.message.channel.server.id, command, type, block, condition, args)

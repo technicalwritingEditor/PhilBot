@@ -8,9 +8,6 @@ import discord
 
 serverConfig = '''{"MainChannel" : "", "JoinRoles" : [],"StartMessage": "","JoinMessage": "", "AdminPowerBypass" : true, "NoPermissonMessage" : ""}'''
 
-rolesConfig = '''{}'''
-commandConfig = '''{}'''
-
 def ToString(args):
     "Converts iterables of strings to a single string."
     string = ""
@@ -65,7 +62,6 @@ def UpdateConfigKeys(server):
     #Updating serverJson with newest keys
     with open("Data/" + server.id + "/ServerConfig.json", 'r') as f:
         dir = json.load(f)
-    f.close()
     
     #Adding new keys
     defaultServerConfig = json.loads(serverConfig)
@@ -88,25 +84,25 @@ def UpdateConfigKeys(server):
         json.dump(dir, f)
 
 
-async def CheckFileIntegrity(bot):
+def CheckFileIntegrity(bot):
     "Checks and fixes the file integrity of Data"
-   
-    emptyServerConfig = json.loads(serverConfig)
+
     for server in bot.servers:
         serverPath = "Data/" + server.id
         
         #Checking for files
         if not os.path.exists(serverPath):
             os.makedirs(serverPath)
-        CheckJson(serverPath + "/RolesConfig.json", rolesConfig)
-        CheckJson(serverPath + "/CommandConfig.json", commandConfig)
+        CheckJson(serverPath + "/RolesConfig.json", "{}")
+        CheckJson(serverPath + "/CommandConfig.json", "{}")
 
         if CheckJson(serverPath + "/ServerConfig.json", serverConfig):
             SetDefaultConfigValues(server)
         
         UpdateConfigKeys(server)
-    
-    #Removing missing servers from Data
+        RemoveAbsentServers(bot)
+
+def RemoveAbsentServers(bot):
     for file in os.listdir("Data"):
         deleteFile = True;
         for server in bot.servers:
@@ -115,29 +111,30 @@ async def CheckFileIntegrity(bot):
         if deleteFile:
             shutil.rmtree("Data/" + file)
 
-def ManageMultipleInput(origin, args, dictDefault = None):
+def ManageMultipleInput(origin, args, dictDefault = None, dictContent = {}):
     "Removes or adds args to origin."
     if type(origin) == list:
-       for object in args:
-           if object in origin:
-               origin.remove(object)
+       for arg in args:
+           if arg in origin:
+               origin.remove(arg)
            else:
-               origin.append(object)
+               origin.append(arg)
 
     if type(origin) == dict:
         for arg in args:
-            if arg in origin:
-                origin.pop(arg)
-            else:
-                origin[arg] = dictDefault
+            #This is to make sure user is not removing any default values.
+            if arg not in dictContent:
+                if arg in origin:
+                    origin.pop(arg)
+                else:
+                    origin[arg] = dictDefault
 
     if type(origin) == str:
         origin = ToString(args)
-   
+  
     if type(origin) == bool:
         if type(args) != list:
             args = [args]
-        
         if args[0] == "true":
             origin = True
         if args[0] == "false":
@@ -155,7 +152,6 @@ def CheckJson(path, defaultJsonCode):
                 config = json.load(f)
                 if config == None:
                     os.remove(path)
-            f.close()
     except:
         os.remove(path)
         
@@ -163,7 +159,6 @@ def CheckJson(path, defaultJsonCode):
     if not os.path.exists(path):
         with open(path, 'w') as f:
             f.write(defaultJsonCode)
-        f.close()
         return True
     else:
         return False

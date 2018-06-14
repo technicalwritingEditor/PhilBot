@@ -40,13 +40,15 @@
     <Compile Include="Decorators.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DiscordEvents.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Helpers.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="PhilBot.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Events.py" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Config\" />

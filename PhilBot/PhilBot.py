@@ -1,11 +1,10 @@
 import Client
-import Events
+import DiscordEvents
 
 client = Client.Client()
 
 #Add commands & events here.
-Events.Events(client.bot)
-Events.Config(client.bot)
-Events.Commands(client.bot)
+DiscordEvents.DiscordEvents(client.bot)
+DiscordEvents.Config(client.bot)
 
 client.RunBot()
