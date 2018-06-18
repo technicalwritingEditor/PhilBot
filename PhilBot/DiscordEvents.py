@@ -8,6 +8,7 @@ import shutil
 import sys
 from Config import Server, Roles, CustomCommands
 import Helpers
+import Logic
 
 def DiscordEvents(bot):
     @bot.event
@@ -33,25 +34,6 @@ def DiscordEvents(bot):
 
     @bot.event
     async def on_message(message):
-        def CheckConditionals(dic, targetMember):
-            doExecute = True
-            if "containsroles" in dic:
-                if not Helpers.HasRoles(bot, targetMember, dic["containsroles"]):
-                    doExecute = False
-            if "haspermisson" in dic:
-                for perm in dic["haspermisson"]:
-                    if not Helpers.CheckPermisson(bot, perm, message):
-                        doExecute = False
-            return doExecute
-        
-        async def ExecuteAttributes(bot, dic, targetMember):
-             #Executing layer one attributes
-             if "addroles" in dic:
-                 await Helpers.GiveRoles(bot, target, dic["addroles"])
-             if "say" in dic:
-                 sayMessage = dic["say"][0].replace("@", targetMember.mention)
-                 await bot.send_message(message.channel, sayMessage) 
-
         if not message.author.bot:
           print("Message sent by", message.author, ":", message.content)
           if message.content[0] == "!": 
@@ -70,32 +52,24 @@ def DiscordEvents(bot):
                   else: await bot.send_message(message.channel, Server.GetConfig(message.server.id, "NoPermissonMessage")) 
               else:
                   if Helpers.CheckPermisson(bot, command, message):
-                      #Custom command code
-                      commandDic = CustomCommands.GetCommand(message.server.id, command)
-                      
-                      await ExecuteAttributes(bot, commandDic, target)
-
-                      #Executing conditions
-                      for block in commandDic["if"]:
-                          if CheckConditionals(commandDic["if"][block], target):
-                              await ExecuteAttributes(bot, commandDic["if"][block], target)
-
-                      for block in commandDic["ifnot"]:
-                          if not CheckConditionals(commandDic["ifnot"][block], target):
-                              await ExecuteAttributes(bot, commandDic["ifnot"][block], target)
+                      commandDict = CustomCommands.GetCommand(message.server.id, command)
+                      await Logic.ExecuteFunction(bot, message.channel, target, commandDict)
                   else: await bot.send_message(message.channel, Server.GetConfig(message.server.id, "NoPermissonMessage")) 
 
 def Config(bot):
     @bot.command(pass_context = True)
-    async def config(ctx, file, *args):
-        returnedValue = Server.Config(ctx.message.channel.server.id, file, args)
-        if returnedValue != None:
-            await bot.say(file + " config is now : " + str(returnedValue))
+    async def config(ctx, file = None, *args):
+        if file != None:
+            returnedValue = Server.Config(ctx.message.channel.server.id, file, args)
+            if returnedValue != None:
+                await bot.say("**" + file + " config is now : " + str(returnedValue) + "**")
+            else:
+                await bot.say("**" + file + " does not exist." + "**")
         else:
-            await bot.say(file + " does not exist")
+            await bot.say("**You must specify a file.**")
     
     @bot.command(pass_context = True)
     async def powerbypass(ctx, arg):
         if ctx.message.channel.permissions_for(ctx.message.author).administrator:
             Server.SetConfig(ctx.message.channel.server.id, "AdminPowerBypass", arg)
-            await bot.say("AdminPowerBypass is now : " + str(Server.GetConfig(ctx.message.server.id, "AdminPowerBypass")))
+            await bot.say("**AdminPowerBypass is now : " + str(Server.GetConfig(ctx.message.server.id, "AdminPowerBypass")) + "**")

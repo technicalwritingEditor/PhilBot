@@ -95,6 +95,7 @@ def CheckFileIntegrity(bot):
             os.makedirs(serverPath)
         CheckJson(serverPath + "/RolesConfig.json", "{}")
         CheckJson(serverPath + "/CommandConfig.json", "{}")
+        CheckJson(serverPath + "/EventConfig.json", "{}")
 
         if CheckJson(serverPath + "/ServerConfig.json", serverConfig):
             SetDefaultConfigValues(server)
@@ -131,6 +132,8 @@ def ManageMultipleInput(origin, args, dictDefault = None, dictContent = {}):
 
     if type(origin) == str:
         origin = ToString(args)
+    if type(origin) == int:
+        origin = int(ToString(args))
   
     if type(origin) == bool:
         if type(args) != list:
