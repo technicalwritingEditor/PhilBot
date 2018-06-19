@@ -3,14 +3,14 @@ import json
 import Helpers
 import Decorators
 
-dataPath = "Data/" + "*id*" + "/ServerConfig.json"
-serverConfig = '''{"MainChannel" : "", "JoinRoles" : [],"StartMessage": "","JoinMessage": "", "AdminPowerBypass" : true, "NoPermissonMessage" : ""}'''
-roleConfig = {"Permissions" : []}
-eventConfig = {"Enabled" : False, "Repeat" : "None", "TimeOfExecution" : {"Year" : 2000, "Month" : 1, "Day" : 1, "Hour" : 0, "Min" : 0, "Second" : 0}, "LastExecuted" : 0, "if": {}, "ifnot": {}, "Target" : "None"}
-commandConfig = {"if": {}, "ifnot": {}}
+data_path = "Data/" + "*id*" + "/ServerConfig.json"
+server_config = '''{"MainChannel" : "", "JoinRoles" : [],"StartMessage": "","JoinMessage": "", "AdminPowerBypass" : true, "NoPermissonMessage" : ""}'''
+role_config = {"Permissions" : []}
+event_config = {"Enabled" : False, "Repeat" : "None", "TimeOfExecution" : {"Year" : 2000, "Month" : 1, "Day" : 1, "Hour" : 0, "Min" : 0, "Second" : 0}, "LastExecuted" : 0, "if": {}, "ifnot": {}, "Target" : "None"}
+command_config = {"if": {}, "ifnot": {}}
 
 
-def Config(id, file, args):
+def config(id, file, args):
     #Making sure args is a list to ensure nothing funky happens.
     if type(args) == tuple:
         args = list(args)
@@ -19,10 +19,10 @@ def Config(id, file, args):
         args = [args]
    
     #Converting file to proper name and getting their default values
-    defaultContent = {}
+    default_content = {}
     if file == "Server":
         file = "ServerConfig.json"
-        defaultContent = serverConfig
+        default_content = server_config
     if file == "Roles":
         file = "RolesConfig.json" 
     if file == "Event":
@@ -31,106 +31,108 @@ def Config(id, file, args):
         file = "CommandConfig.json" 
 
 
-    filePath =  "Data/" + id + "/" + file
-    if os.path.exists(filePath):
+    file_path =  "Data/" + id + "/" + file
+    if os.path.exists(file_path):
         #Converting args into seperated lists
-        argsLists = list()
-        argsLists.append([])
-        dotCount = 0
+        ARGS_LISTS = list()
+        ARGS_LISTS.append([])
+        dot_count = 0
         for arg in args:
             if arg == "/":
-               argsLists.append([])
-               dotCount += 1
+               ARGS_LISTS.append([])
+               dot_count += 1
             else:
-                argsLists[dotCount].append(arg)
+                ARGS_LISTS[dot_count].append(arg)
         #Removing empty lists from argList.
-        for argList in argsLists:
-            if len(argList) == 0:
-                argsLists.remove(argList)
+        for arg_list in ARGS_LISTS:
+            if len(arg_list) == 0:
+                ARGS_LISTS.remove(arg_list)
+        #ARGS_LIST Should not be modified after this point.
 
         #Reading config
-        with open(filePath, 'r') as f:
-            jsonFile = json.load(f)
+        with open(file_path, 'r') as f:
+            JSON_file = json.load(f)
         
         #Making changes to specified config 
         if file == "ServerConfig.json":
-            if len(argsLists) == 2:
-                jsonFile[argsLists[0][0]] = Helpers.ManageMultipleInput(jsonFile[argsLists[0][0]], argsLists[1])
+            if len(ARGS_LISTS) == 2:
+                JSON_file[ARGS_LISTS[0][0]] = Helpers.manage_multiple_input(JSON_file[ARGS_LISTS[0][0]], ARGS_LISTS[1])
 
         if file == "RolesConfig.json":
             #Adding roles
-            if len(argsLists) == 1:
-                jsonFile = Helpers.ManageMultipleInput(jsonFile, argsLists[0], roleConfig)
+            if len(ARGS_LISTS) == 1:
+                JSON_file = Helpers.manage_multiple_input(JSON_file, ARGS_LISTS[0], role_config)
            
             #Adding perms to roles
-            if len(argsLists) == 2:
-                jsonFile[argsLists[0][0]]["Permissions"] = Helpers.ManageMultipleInput(jsonFile[argsLists[0][0]]["Permissions"], argsLists[1], [])
+            if len(ARGS_LISTS) == 2:
+                JSON_file[ARGS_LISTS[0][0]]["Permissions"] = Helpers.manage_multiple_input(JSON_file[ARGS_LISTS[0][0]]["Permissions"], ARGS_LISTS[1], [])
 
         if file == "CommandConfig.json":
             #Adding command
-            if len(argsLists) == 1:
-                jsonFile = Helpers.ManageMultipleInput(jsonFile, argsLists[0], commandConfig)
+            if len(ARGS_LISTS) == 1:
+                JSON_file = Helpers.manage_multiple_input(JSON_file, ARGS_LISTS[0], command_config)
             #Adding attribute
-            if len(argsLists) == 2:
-                jsonFile[argsLists[0][0]] = Helpers.ManageMultipleInput(jsonFile[argsLists[0][0]], argsLists[1], [], commandConfig)
+            if len(ARGS_LISTS) == 2:
+                JSON_file[ARGS_LISTS[0][0]] = Helpers.manage_multiple_input(JSON_file[ARGS_LISTS[0][0]], ARGS_LISTS[1], [], command_config)
             #Adding values to attributes or adding blocks to if and ifnot
-            if len(argsLists) == 3:
+            if len(ARGS_LISTS) == 3:
                 #Adding values to attributes
-                if type(jsonFile[argsLists[0][0]][argsLists[1][0]]) == list:
-                    jsonFile[argsLists[0][0]][argsLists[1][0]] = Helpers.ManageMultipleInput(jsonFile[argsLists[0][0]][argsLists[1][0]], argsLists[2], [])
+                if type(JSON_file[ARGS_LISTS[0][0]][ARGS_LISTS[1][0]]) == list:
+                    JSON_file[ARGS_LISTS[0][0]][ARGS_LISTS[1][0]] = Helpers.manage_multiple_input(JSON_file[ARGS_LISTS[0][0]][ARGS_LISTS[1][0]], ARGS_LISTS[2], [])
                 else:
-                    jsonFile[argsLists[0][0]][argsLists[1][0]] = Helpers.ManageMultipleInput(jsonFile[argsLists[0][0]][argsLists[1][0]], argsLists[2], {})
+                    JSON_file[ARGS_LISTS[0][0]][ARGS_LISTS[1][0]] = Helpers.manage_multiple_input(JSON_file[ARGS_LISTS[0][0]][ARGS_LISTS[1][0]], ARGS_LISTS[2], {})
             
             #Adding attributes to blocks in if and ifnot or setting TimeOfExecution
-            if len(argsLists) == 4:
-                jsonFile[argsLists[0][0]][argsLists[1][0]][argsLists[2][0]] = Helpers.ManageMultipleInput(jsonFile[argsLists[0][0]][argsLists[1][0]][argsLists[2][0]], argsLists[3], [])
+            if len(ARGS_LISTS) == 4:
+                JSON_file[ARGS_LISTS[0][0]][ARGS_LISTS[1][0]][ARGS_LISTS[2][0]] = Helpers.manage_multiple_input(JSON_file[ARGS_LISTS[0][0]][ARGS_LISTS[1][0]][ARGS_LISTS[2][0]], ARGS_LISTS[3], [])
            
             #Adding values to attributes in blocks in if and ifnot
-            if len(argsLists) == 5:
-                jsonFile[argsLists[0][0]][argsLists[1][0]][argsLists[2][0]][argsLists[3][0]] = Helpers.ManageMultipleInput(jsonFile[argsLists[0][0]][argsLists[1][0]][argsLists[2][0]][argsLists[3][0]], argsLists[4])
+            if len(ARGS_LISTS) == 5:
+                JSON_file[ARGS_LISTS[0][0]][ARGS_LISTS[1][0]][ARGS_LISTS[2][0]][ARGS_LISTS[3][0]] = Helpers.manage_multiple_input(JSON_file[ARGS_LISTS[0][0]][ARGS_LISTS[1][0]][ARGS_LISTS[2][0]][ARGS_LISTS[3][0]], ARGS_LISTS[4])
          
         if file == "EventConfig.json":
             #Adding event
-            if len(argsLists) == 1:
-                jsonFile = Helpers.ManageMultipleInput(jsonFile, argsLists[0], eventConfig)
+            if len(ARGS_LISTS) == 1:
+                JSON_file = Helpers.manage_multiple_input(JSON_file, ARGS_LISTS[0], event_config)
             #Adding attribute
-            if len(argsLists) == 2:
-                jsonFile[argsLists[0][0]] = Helpers.ManageMultipleInput(jsonFile[argsLists[0][0]], argsLists[1], [], eventConfig)
+            if len(ARGS_LISTS) == 2:
+                JSON_file[ARGS_LISTS[0][0]] = Helpers.manage_multiple_input(JSON_file[ARGS_LISTS[0][0]], ARGS_LISTS[1], [], event_config)
            
             #Setting values or adding blocks
-            if len(argsLists) == 3:
+            if len(ARGS_LISTS) == 3:
                 #Making sure user is not editing TimeOfExecution
-                if argsLists[1][0] != "TimeOfExecution":
-                    if type(jsonFile[argsLists[0][0]][argsLists[1][0]]) == list:
-                        jsonFile[argsLists[0][0]][argsLists[1][0]] = Helpers.ManageMultipleInput(jsonFile[argsLists[0][0]][argsLists[1][0]], argsLists[2], [])
+                if ARGS_LISTS[1][0] != "TimeOfExecution":
+                    if type(JSON_file[ARGS_LISTS[0][0]][ARGS_LISTS[1][0]]) == list:
+                        JSON_file[ARGS_LISTS[0][0]][ARGS_LISTS[1][0]] = Helpers.manage_multiple_input(JSON_file[ARGS_LISTS[0][0]][ARGS_LISTS[1][0]], ARGS_LISTS[2], [])
                     else:
-                        jsonFile[argsLists[0][0]][argsLists[1][0]] = Helpers.ManageMultipleInput(jsonFile[argsLists[0][0]][argsLists[1][0]], argsLists[2], {})
+                        JSON_file[ARGS_LISTS[0][0]][ARGS_LISTS[1][0]] = Helpers.manage_multiple_input(JSON_file[ARGS_LISTS[0][0]][ARGS_LISTS[1][0]], ARGS_LISTS[2], {})
 
                 #Setting entire TimeOfExecution at once
                 else:
-                    jsonFile[argsLists[0][0]][argsLists[1][0]]["Year"] = Helpers.ManageMultipleInput(jsonFile[argsLists[0][0]][argsLists[1][0]]["Year"], argsLists[2][0])
-                    jsonFile[argsLists[0][0]][argsLists[1][0]]["Month"] = Helpers.ManageMultipleInput(jsonFile[argsLists[0][0]][argsLists[1][0]]["Month"], argsLists[2][1])
-                    jsonFile[argsLists[0][0]][argsLists[1][0]]["Day"] = Helpers.ManageMultipleInput(jsonFile[argsLists[0][0]][argsLists[1][0]]["Day"], argsLists[2][2])
-                    jsonFile[argsLists[0][0]][argsLists[1][0]]["Hour"] = Helpers.ManageMultipleInput(jsonFile[argsLists[0][0]][argsLists[1][0]]["Hour"], argsLists[2][3])
-                    jsonFile[argsLists[0][0]][argsLists[1][0]]["Min"] = Helpers.ManageMultipleInput(jsonFile[argsLists[0][0]][argsLists[1][0]]["Min"], argsLists[2][4])
-                    jsonFile[argsLists[0][0]][argsLists[1][0]]["Second"] = Helpers.ManageMultipleInput(jsonFile[argsLists[0][0]][argsLists[1][0]]["Second"], argsLists[2][5])
+                    JSON_file[ARGS_LISTS[0][0]][ARGS_LISTS[1][0]]["Year"] = Helpers.manage_multiple_input(JSON_file[ARGS_LISTS[0][0]][ARGS_LISTS[1][0]]["Year"], ARGS_LISTS[2][0])
+                    JSON_file[ARGS_LISTS[0][0]][ARGS_LISTS[1][0]]["Month"] = Helpers.manage_multiple_input(JSON_file[ARGS_LISTS[0][0]][ARGS_LISTS[1][0]]["Month"], ARGS_LISTS[2][1])
+                    JSON_file[ARGS_LISTS[0][0]][ARGS_LISTS[1][0]]["Day"] = Helpers.manage_multiple_input(JSON_file[ARGS_LISTS[0][0]][ARGS_LISTS[1][0]]["Day"], ARGS_LISTS[2][2])
+                    JSON_file[ARGS_LISTS[0][0]][ARGS_LISTS[1][0]]["Hour"] = Helpers.manage_multiple_input(JSON_file[ARGS_LISTS[0][0]][ARGS_LISTS[1][0]]["Hour"], ARGS_LISTS[2][3])
+                    JSON_file[ARGS_LISTS[0][0]][ARGS_LISTS[1][0]]["Min"] = Helpers.manage_multiple_input(JSON_file[ARGS_LISTS[0][0]][ARGS_LISTS[1][0]]["Min"], ARGS_LISTS[2][4])
+                    JSON_file[ARGS_LISTS[0][0]][ARGS_LISTS[1][0]]["Second"] = Helpers.manage_multiple_input(JSON_file[ARGS_LISTS[0][0]][ARGS_LISTS[1][0]]["Second"], ARGS_LISTS[2][5])
 
             #Adding attributes to blocks in if and ifnot
-            if len(argsLists) == 4:
-                jsonFile[argsLists[0][0]][argsLists[1][0]][argsLists[2][0]] = Helpers.ManageMultipleInput(jsonFile[argsLists[0][0]][argsLists[1][0]][argsLists[2][0]], argsLists[3], [])
+            if len(ARGS_LISTS) == 4:
+                JSON_file[ARGS_LISTS[0][0]][ARGS_LISTS[1][0]][ARGS_LISTS[2][0]] = Helpers.manage_multiple_input(JSON_file[ARGS_LISTS[0][0]][ARGS_LISTS[1][0]][ARGS_LISTS[2][0]], ARGS_LISTS[3], [])
             #Adding values to attributes in blocks in if and ifnot
-            if len(argsLists) == 5:
-                jsonFile[argsLists[0][0]][argsLists[1][0]][argsLists[2][0]][argsLists[3][0]] = Helpers.ManageMultipleInput(jsonFile[argsLists[0][0]][argsLists[1][0]][argsLists[2][0]][argsLists[3][0]], argsLists[4])
+            if len(ARGS_LISTS) == 5:
+                JSON_file[ARGS_LISTS[0][0]][ARGS_LISTS[1][0]][ARGS_LISTS[2][0]][ARGS_LISTS[3][0]] = Helpers.manage_multiple_input(JSON_file[ARGS_LISTS[0][0]][ARGS_LISTS[1][0]][ARGS_LISTS[2][0]][ARGS_LISTS[3][0]], ARGS_LISTS[4])
 
         #Writing Changes
-        with open(filePath, 'w') as f:
-            json.dump(jsonFile, f)
+        with open(file_path, 'w') as f:
+            json.dump(JSON_file, f)
     else: 
         return None
 
-    return jsonFile
+    return JSON_file
 
-def GetConfig(id, key = ""):
+
+def get_config(id, key = ""):
     "Gets config data from Servers(id) ServerConfig. If key is "" then returns full file." 
     for file in os.listdir("Data"):
           if file == id:
@@ -140,8 +142,9 @@ def GetConfig(id, key = ""):
                   else:
                       return json.load(f)
 
-@Decorators.ReadWriteJson(dataPath)
-def SetConfig(id, key, args, jsonFile):
-    jsonFile[key] = Helpers.ManageMultipleInput(jsonFile[key], args)
-    print(id, "changed config value", key, "to :", jsonFile[key])
-    return jsonFile
+
+@Decorators.read_write_JSON(data_path)
+def set_config(id, key, args, JSON_file):
+    JSON_file[key] = Helpers.manage_multiple_input(JSON_file[key], args)
+    print(id, "changed config value", key, "to :", JSON_file[key])
+    return JSON_file

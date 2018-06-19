@@ -2,30 +2,22 @@ import os
 import json
 import Helpers
 import Decorators
-#Conditions for ifAttribute
-containsRoles = []
-hasPermisson = []
 
-#Attribute
-sayAttribute = []
-addRolesAttribute = []
+data_path = "Data/" + "*id*" + "/CommandConfig.json"
 
-functionConfig = {}
-commandConfig = {"if": {}, "ifnot": {}}
 
-dataPath = "Data/" + "*id*" + "/CommandConfig.json"
-
-def GetCommand(id, command):
+def get_command(id, command):
      with open("Data/" + id + "/CommandConfig.json", 'r') as f:
-        jsonFile = json.load(f)
+        JSON_file = json.load(f)
      f.close()
-     return jsonFile[command]
+     return JSON_file[command]
 
-def GetCommands(id):
+
+def get_commands(id):
     "Gets CommandConig for server(id)."
     with open("Data/" + id + "/CommandConfig.json", 'r') as f:
-        jsonFile = json.load(f)
+        JSON_file = json.load(f)
     f.close()
-    return jsonFile
+    return JSON_file
 
 

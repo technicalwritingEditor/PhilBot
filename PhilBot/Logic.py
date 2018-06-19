@@ -1,37 +1,37 @@
 import Helpers
 from Config import CustomCommands
 
-def CheckConditionals(bot, dic, targetMember):
+def check_conditionals(bot, dic, target_member):
             doExecute = True
             if "containsroles" in dic:
-                if not Helpers.HasRoles(bot, targetMember, dic["containsroles"]):
+                if not Helpers.has_roles(bot, target_member, dic["containsroles"]):
                     doExecute = False
             if "haspermisson" in dic:
                 for perm in dic["haspermisson"]:
-                    if not Helpers.CheckPermisson(bot, perm, message):
+                    if not Helpers.check_permisson(bot, perm, message):
                         doExecute = False
             return doExecute
         
-async def ExecuteAttributes(bot, dic, targetMember, channel):
+async def execute_attributes(bot, dic, target_member, channel):
         #Executing layer one attributes
         if "addroles" in dic:
-            await Helpers.GiveRoles(bot, targetMember, dic["addroles"])
+            await Helpers.give_roles(bot, target_member, dic["addroles"])
         if "say" in dic:
             sayMessage = dic["say"][0]
             if targetMember:
                 sayMessage = dic["say"][0].replace("@", targetMember.mention)
             await bot.send_message(channel, sayMessage) 
 
-async def ExecuteFunction(bot, channel, target, functionDict):
+async def execute_function(bot, channel, target_member, functionDict):
     #MainBlock       
-    await ExecuteAttributes(bot, functionDict, target, channel)
+    await execute_attributes(bot, functionDict, target_member, channel)
 
     #Executing conditions blocks
     for block in functionDict["if"]:
-        if CheckConditionals(bot, functionDict["if"][block], target):
-            await ExecuteAttributes(bot, functionDict["if"][block], target, channel)
+        if check_conditionals(bot, functionDict["if"][block], target_member):
+            await execute_attributes(bot, functionDict["if"][block], target_member, channel)
 
     for block in functionDict["ifnot"]:
-        if not CheckConditionals(bot, functionDict["ifnot"][block], target):
-            await ExecuteAttributes(bot, functionDict["ifnot"][block], target, channel)
+        if not check_conditionals(bot, functionDict["ifnot"][block], target_member):
+            await execute_attributes(bot, functionDict["ifnot"][block], target_member, channel)
 

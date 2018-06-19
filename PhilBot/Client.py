@@ -6,13 +6,14 @@ import json
 import os
 import Helpers
 
-botConfig = '''{"Token" : ""}'''
+bot_config = '''{"Token" : ""}'''
+
 
 class Client():
     def __init__(self):
         self.botToken = ""
        
-        if not Helpers.CheckJson("BotConfig.json", botConfig):
+        if not Helpers.check_json("BotConfig.json", bot_config):
             with open("BotConfig.json", 'r') as f:
                 config = json.load(f)
             f.close()

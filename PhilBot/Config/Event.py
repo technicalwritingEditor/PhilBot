@@ -3,7 +3,7 @@ import json
 import Helpers
 import Decorators
 
-def GetEvents(id):
+def get_events(id):
     with open("Data/" + id + "/EventConfig.json", 'r') as f:
         return json.load(f)
 
