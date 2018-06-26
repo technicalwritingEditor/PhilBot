@@ -36,7 +36,7 @@ def discord_events(bot):
     @bot.event
     async def on_message(message):
         if not message.author.bot:
-          print("Message sent by", message.author, ":", message.content)
+          Helpers.print_UTF8("Message sent by", message.author, ":", message.content)
           if message.content[0] == "!": 
               args = message.content.split(" ")
               command = args[0].lstrip("!")

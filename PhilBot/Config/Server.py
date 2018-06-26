@@ -150,5 +150,5 @@ def get_config(id, key = ""):
 @Decorators.read_write_JSON(data_path)
 def set_config(id, key, args, JSON_file):
     JSON_file[key] = Helpers.manage_multiple_input(JSON_file[key], args)
-    print(id, "changed config value", key, "to :", JSON_file[key])
+    Helpers.print_UTF8(id, "changed config value", key, "to :", JSON_file[key])
     return JSON_file

@@ -248,3 +248,12 @@ def format_JSON(header, JSON_Code, indent = "|  "):
 
     return str(formated_JSON)
 
+def print_UTF8(*args):
+    "Prints args to console with utf-8."
+    
+    arg_list = []
+    for arg in args:
+        arg_list.append(str(arg))
+        
+    
+    print(" ".join(arg_list).encode("utf-8", errors = "ignore"))
