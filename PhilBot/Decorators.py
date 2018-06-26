@@ -1,5 +1,6 @@
 import json
 
+
 def read_write_JSON(filePath):
     "A decorator for reading and then writing a json file"
 

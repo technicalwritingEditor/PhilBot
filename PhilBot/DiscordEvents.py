@@ -10,6 +10,7 @@ from Config import Server, Roles, CustomCommands
 import Helpers
 import Logic
 
+
 def discord_events(bot):
     @bot.event
     async def on_member_join(member):
@@ -22,7 +23,7 @@ def discord_events(bot):
 
     @bot.event
     async def on_ready():
-        Helpers.check_file_integrity(bot)
+        Helpers.check_data_integrity(bot)
         print("Bot Up!")
         for server in bot.servers:
             await bot.send_message(server.get_channel(Server.get_config(server.id, "MainChannel")), Server.get_config(server.id,"StartMessage"))
@@ -47,11 +48,11 @@ def discord_events(bot):
                   target = discord.utils.get(message.server.members, name = args[0])
 
               if command not in CustomCommands.get_commands(message.channel.server.id):
-                  if Helpers.check_permisson(bot, command, message) or command == "powerbypass" and message.channel.permissions_for(message.author).administrator:
+                  if Helpers.check_permisson(bot, command, message.author) or command == "powerbypass" and message.channel.permissions_for(message.author).administrator:
                       await bot.process_commands(message)
                   else: await bot.send_message(message.channel, Server.get_config(message.server.id, "NoPermissonMessage")) 
               else:
-                  if Helpers.check_permisson(bot, command, message):
+                  if Helpers.check_permisson(bot, command, message.author):
                       commandDict = CustomCommands.get_command(message.server.id, command)
                       await Logic.execute_function(bot, message.channel, target, commandDict)
                   else: await bot.send_message(message.channel, Server.get_config(message.server.id, "NoPermissonMessage")) 
@@ -62,7 +63,7 @@ def config(bot):
         if file != None:
             returned_value = Server.config(ctx.message.channel.server.id, file, args)
             if returned_value != None:
-                await bot.say("**" + file + " config is now : " + str(returned_value) + "**")
+                await bot.say(Helpers.format_JSON(file, returned_value))
             else:
                 await bot.say("**" + file + " does not exist." + "**")
         else:
