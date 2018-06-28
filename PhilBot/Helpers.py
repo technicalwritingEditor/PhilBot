@@ -46,7 +46,7 @@ def set_default_config_values(server):
 
 
 def update_config_keys(server):
-    "Updates ServerConfig.json keys to match server_configs keys."
+    "Adds/Removes keys that have been added/removed in server_config"
     
     with open("Data/" + server.id + "/ServerConfig.json", 'r') as f:
         JSON_file = json.load(f)
@@ -65,10 +65,24 @@ def update_config_keys(server):
     with open("Data/" + server.id + "/ServerConfig.json", 'w') as f:
         json.dump(new_JSON_file, f)
 
+def replace_invalid_values(server):
+    "Replaces values in servers configs that are invalid"
+    
+    #Replacing main_channel if channel does not exist
+    main_channel = Server.get_config(server.id, "MainChannel")
+    reset = True
+    for channel in server.channels:
+        if channel.id == main_channel:
+            reset = False
+    if reset:
+        Server.set_config(server.id, "MainChannel", get_default_config(server)["MainChannel"])
+
 
 
 def check_data_integrity(bot):
-    "Checks and fixes the file integrity of Data.\nA.K.A Replaces files which are currupt, missing, ETC."
+    '''Checks and fixes the file integrity of Data.\n
+    A.K.A Replaces files which are currupt, missing, ETC.\n 
+    Also replaces values that have been set incorrectly.'''
 
     for server in bot.servers:
         server_path = "Data/" + server.id
@@ -85,6 +99,7 @@ def check_data_integrity(bot):
             set_default_config_values(server)
         
         update_config_keys(server)
+        replace_invalid_values(server)
         remove_absent_servers(bot)
 
 

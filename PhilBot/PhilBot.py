@@ -6,6 +6,7 @@ import json
 import Logic
 import discord
 import time
+import Helpers
 from Config import Event, Server
 
 client = Client.Client()
@@ -22,9 +23,11 @@ async def main_bot_loop():
         CURRENT_TIME = time.time()
         #Checking each server
         for server in client.bot.servers:
+            Helpers.check_data_integrity(client.bot)
+
+            #Events
             events = Event.get_events(server.id)
             events_modified = dict(events)
-            #Checking each event in server
             for event in events:
                 if events[event]["Enabled"]:
                     do_execute = False
