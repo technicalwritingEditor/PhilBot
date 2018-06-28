@@ -4,7 +4,6 @@ import Helpers
 import Decorators
 
 data_path = "Data/" + "*id*" + "/ServerConfig.json"
-server_config = '''{"MainChannel" : "", "JoinRoles" : [],"StartMessage": "","JoinMessage": "", "AdminPowerBypass" : true, "NoPermissonMessage" : ""}'''
 role_config = {"Permissions" : []}
 event_config = {"Enabled" : False, "Repeat" : "None", "TimeOfExecution" : {"Year" : 2000, "Month" : 1, "Day" : 1, "Hour" : 0, "Min" : 0, "Second" : 0}, "LastExecuted" : 0, "Target" : "None", "Functions" : []}
 command_config = {"Functions" : []}
@@ -20,13 +19,11 @@ def config(id, file, args):
         args = [args]
    
     #Converting file to proper name and getting their default values
-    default_content = {}
     if file == "Server":
         file = "ServerConfig.json"
-        default_content = server_config
     if file == "Roles":
         file = "RolesConfig.json" 
-    if file == "Event":
+    if file == "Event": 
         file = "EventConfig.json" 
     if file == "Commands":
         file = "CommandConfig.json"

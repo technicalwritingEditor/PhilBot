@@ -6,7 +6,21 @@ import shutil
 import inspect
 import discord
 
-server_config = {"MainChannel" : "", "JoinRoles" : [],"StartMessage": "","JoinMessage": "", "AdminPowerBypass" : True, "NoPermissonMessage" : ""}
+server_config = {"MainChannel" : "", "JoinRoles" : [],"StartMessage": "","JoinMessage": "", "AdminPowerBypass" : True, "NoPermissonMessage" : "", "DoGetInfoMessages" : True}
+
+def get_bot_config():
+     with open("BotConfig.json", 'r') as f:
+         return json.load(f)
+
+
+def set_bot_config(key, value):
+     with open("BotConfig.json", 'r') as f:
+         JSON_file = json.load(f)
+     
+     JSON_file[key] = value
+       
+     with open("BotConfig.json", 'w') as f:
+         json.dump(JSON_file, f)
 
 
 def get_default_config(server = None):

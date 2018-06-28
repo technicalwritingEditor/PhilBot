@@ -6,7 +6,7 @@ import json
 import os
 import Helpers
 
-bot_config = '''{"Token" : ""}'''
+bot_config = {"Token" : "", "UpdateMessage" : "", "DoSendUpdateMessage" : False}
 
 
 class Client():
