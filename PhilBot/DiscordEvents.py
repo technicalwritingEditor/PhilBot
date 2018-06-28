@@ -29,7 +29,7 @@ def discord_events(bot):
             await bot.send_message(server.get_channel(Server.get_config(server.id, "MainChannel")), Server.get_config(server.id,"StartMessage"))
             if Helpers.get_bot_config()["DoSendUpdateMessage"] and Server.get_config(server.id, "DoGetInfoMessages"):
                 await bot.send_message(server.get_channel(Server.get_config(server.id, "MainChannel")), "Info Message:\n```" + Helpers.get_bot_config()["UpdateMessage"] + "```\nYou can disable this message at anytime with: !config Server DoGetInfoMessages / false")
-                Helpers.set_bot_config("DoSendUpdateMessage", False)
+        Helpers.set_bot_config("DoSendUpdateMessage", False)
 
     @bot.event 
     async def on_server_join(server):
