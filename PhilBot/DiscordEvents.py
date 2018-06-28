@@ -26,7 +26,9 @@ def discord_events(bot):
         Helpers.check_data_integrity(bot)
         print("Bot Up!")
         for server in bot.servers:
-            await bot.send_message(server.get_channel(Server.get_config(server.id, "MainChannel")), Server.get_config(server.id,"StartMessage"))
+            if Server.get_config(server.id,"StartMessage") != "":
+                await bot.send_message(server.get_channel(Server.get_config(server.id, "MainChannel")), Server.get_config(server.id,"StartMessage"))
+            
             if Helpers.get_bot_config()["DoSendUpdateMessage"] and Server.get_config(server.id, "DoGetInfoMessages"):
                 await bot.send_message(server.get_channel(Server.get_config(server.id, "MainChannel")), "Info Message:\n```" + Helpers.get_bot_config()["UpdateMessage"] + "```\nYou can disable this message at anytime with: !config Server DoGetInfoMessages / false")
         Helpers.set_bot_config("DoSendUpdateMessage", False)
@@ -77,3 +79,13 @@ def config(bot):
         if ctx.message.channel.permissions_for(ctx.message.author).administrator:
             Server.set_config(ctx.message.channel.server.id, "AdminPowerBypass", arg)
             await bot.say("**AdminPowerBypass is now : " + str(Server.get_config(ctx.message.server.id, "AdminPowerBypass")) + "**")
+     
+    @bot.command(pass_context = True)
+    async def reset(ctx, arg = ""):
+        print(ctx.message.server.name)
+        if arg == ctx.message.server.name:
+            shutil.rmtree("Data/" + ctx.message.server.id)
+            await bot.say("**Server reset!**")
+        else:
+            await bot.say("**Please provide your servers exact name.**")
+
