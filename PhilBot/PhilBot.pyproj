@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>04e1e323-f6a8-4761-be29-4c0ab400d62d</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>PhilBot.py</StartupFile>
+    <StartupFile>phil_bot.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -22,42 +22,24 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Client.py">
+    <Compile Include="client.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Config\CustomCommands.py">
+    <Compile Include="configs.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Config\Event.py">
+    <Compile Include="discord_events.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Config\Roles.py">
+    <Compile Include="helpers.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Config\Server.py">
+    <Compile Include="logic.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Config\__init__.py">
+    <Compile Include="phil_bot.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Decorators.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="DiscordEvents.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Helpers.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Logic.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="PhilBot.py">
-      <SubType>Code</SubType>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Config\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

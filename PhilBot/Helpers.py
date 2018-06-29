@@ -1,17 +1,12 @@
 import asyncio
 import os
-from Config import Server, Roles
+import configs
 import json
 import shutil
 import inspect
 import discord
 
-server_config = {"MainChannel" : "", "JoinRoles" : [],"StartMessage": "","JoinMessage": "", "AdminPowerBypass" : True, "NoPermissonMessage" : "", "DoGetInfoMessages" : True}
-
-def get_bot_config():
-     with open("BotConfig.json", 'r') as f:
-         return json.load(f)
-
+server_config = {"MainChannel" : "", "JoinRoles" : [],"StartMessage": "","JoinMessage": "", "NoPermissonMessage" : "", "DoGetInfoMessages" : True}
 
 def set_bot_config(key, value):
      with open("BotConfig.json", 'r') as f:
@@ -43,7 +38,6 @@ def get_default_config(server = None):
     dict["JoinMessage"] = "**Welcome @ to the server!**"
     dict["StartMessage"] = "**This bot has restarted.**"
     dict["NoPermissonMessage"] = "**You do not have permisson to do that.**"
-    dict["AdminPowerBypass"] = True
     
     return dict
 
@@ -52,11 +46,10 @@ def set_default_config_values(server):
      "Sets server's ServerConfig.json to default values."
 
      default_config = get_default_config(server)
-     Server.set_config(server.id, "MainChannel", default_config["MainChannel"])
-     Server.set_config(server.id, "JoinMessage", default_config["JoinMessage"])
-     Server.set_config(server.id, "StartMessage", default_config["StartMessage"])
-     Server.set_config(server.id, "NoPermissonMessage", default_config["NoPermissonMessage"])
-     Server.set_config(server.id, "AdminPowerBypass", default_config["AdminPowerBypass"])
+     configs.set_config(server.id, "Server", "MainChannel / " + default_config["MainChannel"])
+     configs.set_config(server.id, "Server", "JoinMessage / " + default_config["JoinMessage"])
+     configs.set_config(server.id, "Server", "StartMessage / " + default_config["StartMessage"])
+     configs.set_config(server.id, "Server", "NoPermissonMessage / " + default_config["NoPermissonMessage"])
 
 
 def update_config_keys(server):
@@ -81,15 +74,14 @@ def update_config_keys(server):
 
 def replace_invalid_values(server):
     "Replaces values in servers configs that are invalid"
-    
     #Replacing main_channel if channel does not exist
-    main_channel = Server.get_config(server.id, "MainChannel")
+    main_channel = configs.get_config(configs.server_config, server.id)["MainChannel"]
     reset = True
     for channel in server.channels:
         if channel.id == main_channel:
             reset = False
     if reset:
-        Server.set_config(server.id, "MainChannel", get_default_config(server)["MainChannel"])
+        configs.set_config(server.id, "Server", "MainChannel / " + get_default_config(server)["MainChannel"])
 
 
 
@@ -214,14 +206,13 @@ def check_json(path, default_JSON_Code):
 def check_permisson(bot, command_name, member):
     "Checks if user has permission for command(commandName)."
 
-    if Server.get_config(member.server.id, "AdminPowerBypass"):
-        if member.server.get_channel(Server.get_config(member.server.id, "MainChannel")).permissions_for(member).administrator: 
-            return True
+    if member.server.get_channel(configs.get_config(configs.server_config, member.server.id)["MainChannel"]).permissions_for(member).administrator: 
+        return True
    
     has_perm = False
     for role in member.roles:
-        if role.name in Roles.get_role(member.server.id):
-            if command_name in Roles.get_role(server.id, role.name,"Permissions"):
+        if role.name in configs.get_config(configs.role_config, member.server.id):
+            if command_name in configs.get_config(server.id, configs.role_config)[role.name]["Permissions"]:
                 has_perm = True
     return has_perm  
 

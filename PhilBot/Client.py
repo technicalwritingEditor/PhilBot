@@ -4,7 +4,7 @@ from discord.ext.commands import Bot
 import sys
 import json
 import os
-import Helpers
+import helpers
 
 bot_config = {"Token" : "", "UpdateMessage" : "", "DoSendUpdateMessage" : False}
 
@@ -13,7 +13,7 @@ class Client():
     def __init__(self):
         self.botToken = ""
        
-        if not Helpers.check_json("BotConfig.json", bot_config):
+        if not helpers.check_json("BotConfig.json", bot_config):
             with open("BotConfig.json", 'r') as f:
                 config = json.load(f)
             f.close()

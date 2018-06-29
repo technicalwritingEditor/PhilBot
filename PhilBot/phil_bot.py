@@ -1,19 +1,19 @@
-import Client
-import DiscordEvents
+import client
+import discord_events
 import asyncio
 import datetime
 import json
-import Logic
+import logic
 import discord
 import time
-import Helpers
-from Config import Event, Server
+import helpers
+import configs
 
-client = Client.Client()
+client = client.Client()
 
 #Add commands & events here.
-DiscordEvents.discord_events(client.bot)
-DiscordEvents.config(client.bot)
+discord_events.discord_events(client.bot)
+discord_events.config(client.bot)
 
 
 async def main_bot_loop():
@@ -23,10 +23,10 @@ async def main_bot_loop():
         CURRENT_TIME = time.time()
         #Checking each server
         for server in client.bot.servers:
-            Helpers.check_data_integrity(client.bot)
+            helpers.check_data_integrity(client.bot)
 
             #Events
-            events = Event.get_events(server.id)
+            events = configs.get_config(configs.event_config, server.id)
             events_modified = dict(events)
             for event in events:
                 if events[event]["Enabled"]:
@@ -72,7 +72,7 @@ async def main_bot_loop():
                         if events[event]["Target"] != "None":
                             target = discord.utils.get(server.members, name = events[event]["Target"])
 
-                        await Logic.execute_function(client.bot, server.get_channel(Server.get_config(server.id, "MainChannel")), target, events[event])
+                        await logic.execute_function(client.bot, server.get_channel(configs.get_config(configs.server_config, server.id)["MainChannel"]), target, events[event])
                        
                         events_modified[event]["LastExecuted"] = CURRENT_TIME
                         
