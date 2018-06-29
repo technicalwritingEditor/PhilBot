@@ -29,8 +29,8 @@ def discord_events(bot):
             if configs.get_config(configs.server_config, server.id)["StartMessage"] != "":
                 await bot.send_message(server.get_channel(configs.get_config(configs.server_config, server.id)["MainChannel"]), configs.get_config(configs.server_config, server.id)["StartMessage"])
             
-            if configs.get_config(configs.server_config, server.id)["DoSendUpdateMessage"] and configs.get_config(configs.server_config, server.id)["DoGetInfoMessages"]:
-                await bot.send_message(server.get_channel(configs.get_config(configs.server_config, server.id)["MainChannel"]), "Info Message:\n```" + configs.get_config(configs.server_config, server.id)["UpdateMessage"] + "```\nYou can disable this message at anytime with: !config Server DoGetInfoMessages / false")
+            if configs.get_config(configs.bot_config, server.id)["DoSendUpdateMessage"] and configs.get_config(configs.server_config, server.id)["DoGetInfoMessages"]:
+                await bot.send_message(server.get_channel(configs.get_config(configs.server_config, server.id)["MainChannel"]), "Info Message:\n```" + configs.get_config(configs.bot_config, server.id)["UpdateMessage"] + "```\nYou can disable this message at anytime with: !config Server DoGetInfoMessages / false")
         helpers.set_bot_config("DoSendUpdateMessage", False)
 
     @bot.event 
