@@ -112,7 +112,8 @@ def check_data_integrity(bot):
         
         for member in server.members:
             if member.server.get_channel(configs.get_config(configs.server_config, server.id)["MainChannel"]).permissions_for(member).administrator:
-                configs.set_config(server.id, "Users", member.name)
+                if member.name not in configs.get_config(configs.user_config, server.id):
+                    configs.set_config(server.id, "Users", member.name)
                 configs.set_config(server.id, "Users", member.name + " / GodMode / true")
 
 
