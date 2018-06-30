@@ -112,9 +112,9 @@ def check_data_integrity(bot):
         
         for member in server.members:
             if member.server.get_channel(configs.get_config(configs.server_config, server.id)["MainChannel"]).permissions_for(member).administrator:
-                if member.name not in configs.get_config(configs.user_config, server.id):
-                    configs.set_config(server.id, "Users", member.name)
-                configs.set_config(server.id, "Users", member.name + " / GodMode / true")
+                if member.id not in configs.get_config(configs.user_config, server.id):
+                    configs.set_config(server.id, "Users", member.id)
+                configs.set_config(server.id, "Users", member.id + " / GodMode / true")
 
 
 def remove_absent_servers(bot):
@@ -215,12 +215,12 @@ def check_permisson(bot, command_name, member):
     "Checks if user has permission for command(commandName)."
     has_perm = False
     user_config = configs.get_config(configs.user_config, member.server.id)
-    if member.name in user_config:
-        if user_config[member.name]["GodMode"]:
+    if member.id in user_config:
+        if user_config[member.id]["GodMode"]:
             has_perm = True
 
         #User specific perms
-        for role in user_config[member.name]:
+        for role in user_config[member.id]:
             if role == command_name:
                 has_perm = True
     

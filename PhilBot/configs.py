@@ -61,10 +61,11 @@ def set_config(id, file, args):
                dot_count += 1
             else:
                 ARGS_LISTS[dot_count].append(arg)
-        #Removing empty lists from argList.
         for arg_list in ARGS_LISTS:
+            #Removing empty lists from argList.
             if len(arg_list) == 0:
                 ARGS_LISTS.remove(arg_list)
+
         #ARGS_LIST Should not be modified after this point.
 
         #Reading config
