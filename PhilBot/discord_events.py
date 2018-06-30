@@ -51,7 +51,7 @@ def discord_events(bot):
               if len(args) == 0:
                   target = message.author 
               else: 
-                  target = discord.utils.get(message.server.members, name = args[0])
+                  target = discord.utils.get(message.server.members, id = args[0])
 
               if command not in configs.get_config(configs.command_config, message.channel.server.id):
                   if helpers.check_permisson(bot, command, message.author) or command == "god" and message.server.get_channel(configs.get_config(configs.server_config, message.server.id)["MainChannel"]).permissions_for(message.author).administrator:
