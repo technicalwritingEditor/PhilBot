@@ -35,6 +35,7 @@ def discord_events(bot):
 
     @bot.event 
     async def on_server_join(server):
+        helpers.check_data_integrity(bot)
         print(server.id, "has added PhilBot.")
         await bot.send_message(server.get_channel(configs.get_config(configs.server_config, server.id)["MainChannel"]), configs.get_config(configs.server_config, server.id)["StartMessage"])
 
@@ -53,7 +54,7 @@ def discord_events(bot):
                   target = discord.utils.get(message.server.members, name = args[0])
 
               if command not in configs.get_config(configs.command_config, message.channel.server.id):
-                  if helpers.check_permisson(bot, command, message.author):
+                  if helpers.check_permisson(bot, command, message.author) or command == "god" and message.server.get_channel(configs.get_config(configs.server_config, message.server.id)["MainChannel"]).permissions_for(message.author).administrator:
                       await bot.process_commands(message)
                   else: await bot.send_message(message.channel, configs.get_config(configs.server_config, message.server.id)["NoPermissonMessage"]) 
               else:
@@ -73,6 +74,9 @@ def config(bot):
                 await bot.say("**" + file + " does not exist." + "**")
         else:
             await bot.say("**You must specify a file.**")
+    @bot.command(pass_context = True)
+    async def god(ctx):
+        configs.set_config(ctx.message.server.id, "Users", ctx.message.author.name + " / GodMode / true")
 
     @bot.command(pass_context = True)
     async def reset(ctx, arg = ""):

@@ -9,12 +9,15 @@ event_config = "Data/*id*/EventConfig.json"
 function_config = "Data/*id*/FunctionConfig.json"
 command_config = "Data/*id*/CommandConfig.json"
 role_config = "Data/*id*/RolesConfig.json"
+user_config = "Data/*id*/UserConfig.json"
 
-data_path = "Data/" + "*id*" + "/ServerConfig.json"
-role_config_content = {"Permissions" : []}
+role_config_content = {"Permissions" : [], "GodMode" : False}
+user_config_content = {"Permissions" : [], "GodMode" : False}
 event_config_content = {"Enabled" : False, "Repeat" : "None", "TimeOfExecution" : {"Year" : 2000, "Month" : 1, "Day" : 1, "Hour" : 0, "Min" : 0, "Second" : 0}, "LastExecuted" : 0, "Target" : "None", "Functions" : []}
 command_config_content = {"Functions" : []}
 function_config_content = {"if": {}, "ifnot": {}}
+
+
 
 def get_config(config_path, server_id = ""):
     if server_id != "":
@@ -32,6 +35,8 @@ def set_config(id, file, args):
         args = [args]
 
     #Converting file to proper name and getting their default values
+    if file == "Users":
+        file = "UserConfig.json"
     if file == "Server":
         file = "ServerConfig.json"
     if file == "Roles":
@@ -67,6 +72,12 @@ def set_config(id, file, args):
             JSON_file = json.load(f)
         
         #Making changes to specified config 
+        if file == "UserConfig.json":
+            if len(ARGS_LISTS) == 1:
+                JSON_file = helpers.manage_multiple_input(JSON_file, ARGS_LISTS[0], user_config_content)
+            if len(ARGS_LISTS) == 3:
+               JSON_file[ARGS_LISTS[0][0]][ARGS_LISTS[1][0]] = helpers.manage_multiple_input(JSON_file[ARGS_LISTS[0][0]][ARGS_LISTS[1][0]], ARGS_LISTS[2])
+
         if file == "ServerConfig.json":
             if len(ARGS_LISTS) == 2:
                 JSON_file[ARGS_LISTS[0][0]] = helpers.manage_multiple_input(JSON_file[ARGS_LISTS[0][0]], ARGS_LISTS[1])
@@ -76,9 +87,8 @@ def set_config(id, file, args):
             if len(ARGS_LISTS) == 1:
                 JSON_file = helpers.manage_multiple_input(JSON_file, ARGS_LISTS[0], role_config_content)
            
-            #Adding perms to roles
-            if len(ARGS_LISTS) == 2:
-                JSON_file[ARGS_LISTS[0][0]]["Permissions"] = helpers.manage_multiple_input(JSON_file[ARGS_LISTS[0][0]]["Permissions"], ARGS_LISTS[1], [])
+            if len(ARGS_LISTS) == 3:
+                JSON_file[ARGS_LISTS[0][0]][ARGS_LISTS[1][0]] = helpers.manage_multiple_input(JSON_file[ARGS_LISTS[0][0]][ARGS_LISTS[1][0]], ARGS_LISTS[2])
         
         if file == "FunctionConfig.json":
             #Adding function

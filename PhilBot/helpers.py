@@ -94,19 +94,28 @@ def check_data_integrity(bot):
         server_path = "Data/" + server.id
 
         #This is for the main server folder.
+        new_server = False
         if not os.path.exists(server_path):
             os.makedirs(server_path)
+            new_server = True
         #And this is for the json files contained within.
         check_json(server_path + "/RolesConfig.json", {})
         check_json(server_path + "/CommandConfig.json", {})
         check_json(server_path + "/EventConfig.json", {})
         check_json(server_path + "/FunctionConfig.json", {})
+        check_json(server_path + "/UserConfig.json", {})
         if check_json(server_path + "/ServerConfig.json", server_config):
             set_default_config_values(server)
         
         update_config_keys(server)
         replace_invalid_values(server)
         remove_absent_servers(bot)
+        
+        if new_server:
+            for member in server.members:
+                if member.server.get_channel(configs.get_config(configs.server_config, server.id)["MainChannel"]).permissions_for(member).administrator:
+                    configs.set_config(server.id, "Users", member.name)
+                    configs.set_config(server.id, "Users", member.name + " / GodMode / true")
 
 
 def remove_absent_servers(bot):
@@ -205,15 +214,24 @@ def check_json(path, default_JSON_Code):
 
 def check_permisson(bot, command_name, member):
     "Checks if user has permission for command(commandName)."
-
-    if member.server.get_channel(configs.get_config(configs.server_config, member.server.id)["MainChannel"]).permissions_for(member).administrator: 
-        return True
-   
     has_perm = False
+    user_config = configs.get_config(configs.user_config, member.server.id)
+    if member.name in user_config:
+        if user_config[member.name]["GodMode"]:
+            has_perm = True
+
+        #User specific perms
+        for role in user_config[member.name]:
+            if role == command_name:
+                has_perm = True
+    
+    #Role perms
     for role in member.roles:
         if role.name in configs.get_config(configs.role_config, member.server.id):
             if command_name in configs.get_config(server.id, configs.role_config)[role.name]["Permissions"]:
                 has_perm = True
+    
+  
     return has_perm  
 
 
