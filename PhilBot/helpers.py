@@ -94,10 +94,9 @@ def check_data_integrity(bot):
         server_path = "Data/" + server.id
 
         #This is for the main server folder.
-        new_server = False
         if not os.path.exists(server_path):
             os.makedirs(server_path)
-            new_server = True
+
         #And this is for the json files contained within.
         check_json(server_path + "/RolesConfig.json", {})
         check_json(server_path + "/CommandConfig.json", {})
@@ -111,11 +110,10 @@ def check_data_integrity(bot):
         replace_invalid_values(server)
         remove_absent_servers(bot)
         
-        if new_server:
-            for member in server.members:
-                if member.server.get_channel(configs.get_config(configs.server_config, server.id)["MainChannel"]).permissions_for(member).administrator:
-                    configs.set_config(server.id, "Users", member.name)
-                    configs.set_config(server.id, "Users", member.name + " / GodMode / true")
+        for member in server.members:
+            if member.server.get_channel(configs.get_config(configs.server_config, server.id)["MainChannel"]).permissions_for(member).administrator:
+                configs.set_config(server.id, "Users", member.name)
+                configs.set_config(server.id, "Users", member.name + " / GodMode / true")
 
 
 def remove_absent_servers(bot):
