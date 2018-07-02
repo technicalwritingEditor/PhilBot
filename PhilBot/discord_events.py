@@ -46,12 +46,7 @@ def discord_events(bot):
           if message.content[0] == "!": 
               args = message.content.split(" ")
               command = args[0].lstrip("!")
-              #Removing "!commandname" from args
               args.pop(0)
-              if len(args) == 0:
-                  target = message.author 
-              else: 
-                  target = discord.utils.get(message.server.members, id = args[0])
 
               if command not in configs.get_config(configs.command_config, message.channel.server.id):
                   if helpers.check_permisson(bot, command, message.author) or command == "god" and message.server.get_channel(configs.get_config(configs.server_config, message.server.id)["MainChannel"]).permissions_for(message.author).administrator:
@@ -60,7 +55,7 @@ def discord_events(bot):
               else:
                   if helpers.check_permisson(bot, command, message.author):
                       commandDict = configs.get_config(configs.command_config, message.server.id)[command]
-                      await logic.execute_function(bot, message.channel, target, commandDict)
+                      await logic.execute_function(bot, message.channel, commandDict, args)
                   else: await bot.send_message(message.channel, configs.get_config(configs.server_config, message.server.id)["NoPermissonMessage"]) 
 
 def config(bot):

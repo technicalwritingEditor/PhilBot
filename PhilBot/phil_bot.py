@@ -67,12 +67,8 @@ async def main_bot_loop():
 
                     if do_execute:
                         print("Executing", event, "in", server.id)
-                        target = None
-
-                        if events[event]["Target"] != "None":
-                            target = discord.utils.get(server.members, name = events[event]["Target"])
-
-                        await logic.execute_function(client.bot, server.get_channel(configs.get_config(configs.server_config, server.id)["MainChannel"]), target, events[event])
+                        
+                        await logic.execute_function(client.bot, server.get_channel(configs.get_config(configs.server_config, server.id)["MainChannel"]), events[event], events[event]["Args"])
                        
                         events_modified[event]["LastExecuted"] = CURRENT_TIME
                         

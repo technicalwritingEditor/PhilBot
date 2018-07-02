@@ -13,7 +13,7 @@ user_config = "Data/*id*/UserConfig.json"
 
 role_config_content = {"Permissions" : [], "GodMode" : False}
 user_config_content = {"Permissions" : [], "GodMode" : False}
-event_config_content = {"Enabled" : False, "Repeat" : "None", "TimeOfExecution" : {"Year" : 2000, "Month" : 1, "Day" : 1, "Hour" : 0, "Min" : 0, "Second" : 0}, "LastExecuted" : 0, "Target" : "None", "Functions" : []}
+event_config_content = {"Enabled" : False, "Repeat" : "None", "TimeOfExecution" : {"Year" : 2000, "Month" : 1, "Day" : 1, "Hour" : 0, "Min" : 0, "Second" : 0}, "LastExecuted" : 0, "Args" : [], "Functions" : []}
 command_config_content = {"Functions" : []}
 function_config_content = {"if": {}, "ifnot": {}}
 
