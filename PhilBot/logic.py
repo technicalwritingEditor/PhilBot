@@ -86,22 +86,22 @@ async def execute_function(bot, channel, object_dict, args):
             #Execution time
             if remaining_args[0][0] == "+":
                 seconds = int(remaining_args[1])
-                if remaining_args[0][1] == "m":
-                    seconds = int(remaining_args[1]) * 60
-                if remaining_args[0][1] == "h":
-                    seconds = int(remaining_args[1]) * 3600
-                if remaining_args[0][1] == "d":
-                    seconds = int(remaining_args[1]) * 86400
-                if remaining_args[0][1] == "w":
-                    seconds = int(remaining_args[1]) * 604800
-                if remaining_args[0][1] == "mo":
-                    seconds = int(remaining_args[1]) * 2592000
-                if remaining_args[0][1] == "y":
-                    seconds = int(remaining_args[1]) * 31536000
+                if len(remaining_args[0]) > 1:
+                    if remaining_args[0][1] == "m":
+                        seconds = int(remaining_args[1]) * 60
+                    if remaining_args[0][1] == "h":
+                        seconds = int(remaining_args[1]) * 3600
+                    if remaining_args[0][1] == "d":
+                        seconds = int(remaining_args[1]) * 86400
+                    if remaining_args[0][1] == "w":
+                        seconds = int(remaining_args[1]) * 604800
+                    if remaining_args[0][1] == "mo":
+                        seconds = int(remaining_args[1]) * 2592000
+                    if remaining_args[0][1] == "y":
+                        seconds = int(remaining_args[1]) * 31536000
                 del remaining_args[0]
-
+                del remaining_args[0]
                 time_of_execution = datetime.datetime.fromtimestamp(time.time() + seconds)
-                del remaining_args[0]
                 configs.set_config(channel.server.id, "Events", event_name + " / TimeOfExecution / " + str(time_of_execution.year) + " "  + str(time_of_execution.month) + " "  + str(time_of_execution.day) + " "  + str(time_of_execution.hour) + " "  + str(time_of_execution.minute) + " "  + str(time_of_execution.second))
             else:
                 if len(remaining_args) < 6:
@@ -117,7 +117,6 @@ async def execute_function(bot, channel, object_dict, args):
             attributes_in_event = get_required_attributes(dic["addevent"][0])
             if "containsroles" in attributes_in_event or "haspermisson" in attributes_in_event or "addroles" in attributes_in_event:
                 remaining_args = [target_member.id] + remaining_args
-                print("test")
             configs.set_config(channel.server.id, "Events", event_name + " / Args / " + " ".join(remaining_args))
             remaining_args.clear()
 
