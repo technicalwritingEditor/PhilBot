@@ -27,7 +27,7 @@ async def main_bot_loop():
 
             #Events
             events = configs.get_config(configs.event_config, server.id)
-            events_modified = dict(events)
+            events_to_delete = []
             for event in events:
                 if events[event]["Enabled"]:
                     do_execute = False
@@ -67,19 +67,13 @@ async def main_bot_loop():
 
                     if do_execute:
                         print("Executing", event, "in", server.id)
-                        
                         await logic.execute_function(client.bot, server.get_channel(configs.get_config(configs.server_config, server.id)["MainChannel"]), events[event], events[event]["Args"])
-                       
-                        events_modified[event]["LastExecuted"] = CURRENT_TIME
-                        
-                        #If event is repeating
+                        configs.set_config(server.id, "Events", event + " / LastExecuted / " + str(int(CURRENT_TIME)))
+                        #If event is not repeating
                         if events[event]["Repeat"] != "Min" and "Hour" and "Day" and "Week" and "Month":
-                            del events_modified[event]
-                        
+                            events_to_delete.append(event)
             #Writing Changes
-            with open("Data/" + server.id + "/EventConfig.json", 'w') as f:
-                json.dump(events_modified, f)               
-
+            configs.set_config(server.id, "Events", events_to_delete)         
         await asyncio.sleep(1)
         
 

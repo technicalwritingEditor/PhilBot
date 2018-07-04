@@ -5,8 +5,8 @@ import time
 import datetime
 
 async def execute_function(bot, channel, object_dict, args):
-    async def missing_args():
-        await bot.send_message(channel, "**Missing args.**")
+    async def missing_args(info = ""):
+        await bot.send_message(channel, "**Missing args. " + info + "**")
 
 
     def check_conditionals(bot, dic):
@@ -31,12 +31,12 @@ async def execute_function(bot, channel, object_dict, args):
             await helpers.give_roles(bot, target_member, dic["addroles"])
 
         if "say" in dic:
-            message = None
+            amount = None
             try:
-                message = dic["say"][0]
+                amount = dic["say"][0]
             except:
                 if len(remaining_args) > 0:
-                    message = remaining_args[0]
+                    amount = remaining_args[0]
                     del remaining_args[0]
 
             try:
@@ -44,18 +44,19 @@ async def execute_function(bot, channel, object_dict, args):
             except:
                 send_channel = channel
             
-            if message != None:
-                await bot.send_message(send_channel, message)
+            if amount != None:
+                await bot.send_message(send_channel, amount)
             else:
-                await missing_args()
+                await missing_args("No message set for say.")
+                return False
 
         if "removemessages" in dic:
-            message = None
+            amount = None
             try:
-                message = int(dic["removemessages"][0])
+                amount = int(dic["removemessages"][0])
             except:
                 if len(remaining_args) > 0:
-                    message = int(remaining_args[0])
+                    amount = int(remaining_args[0])
                     del remaining_args[0]
 
             try:
@@ -63,62 +64,105 @@ async def execute_function(bot, channel, object_dict, args):
             except:
                 send_channel = channel
             
-            if message != None:
-                async for message in bot.logs_from(channel, message):
-                    await bot.delete_message(message)
+            if amount != None:
+                async for amount in bot.logs_from(channel, amount):
+                    await bot.delete_message(amount)
             else:
-                await missing_args()
+                await missing_args("Amount not specified for removemessages")
+                return False
 
         if "addevent" in dic:
-            remaining_args = dic["addevent"] + remaining_args
-
-            event_name = "Event_" + str(len(configs.get_config(configs.event_config, channel.server.id)))
+            remaining_args = dic["addevent"][1:] + remaining_args
+            i = 0
+            event_name = "Event_0"
+            while str(event_name) in configs.get_config(configs.event_config, channel.server.id):
+                event_name = "Event_" + str(i)
+                i += 1
             configs.set_config(channel.server.id, "Events", event_name)
-            configs.set_config(channel.server.id, "Events", event_name + " / Functions / " + remaining_args[0])
-            del remaining_args[0]
+
+            #Functions
+            configs.set_config(channel.server.id, "Events", event_name + " / Functions / " + dic["addevent"][0])
+
+            #Execution time
             if remaining_args[0] == "+":
                 del remaining_args[0]
                 time_of_execution = datetime.datetime.fromtimestamp(time.time() + int(remaining_args[0]))
                 del remaining_args[0]
                 configs.set_config(channel.server.id, "Events", event_name + " / TimeOfExecution / " + str(time_of_execution.year) + " "  + str(time_of_execution.month) + " "  + str(time_of_execution.day) + " "  + str(time_of_execution.hour) + " "  + str(time_of_execution.minute) + " "  + str(time_of_execution.second))
             else:
-                configs.set_config(channel.server.id, "Events", event_name + " / TimeOfExecution / " + remaining_args[0] + " "  + remaining_args[1] + " "  + remaining_args[2] + " "  + remaining_args[3] + " "  + remaining_args[4] + " "  + remaining_args[5])
-            remaining_args = remaining_args[6:]
+                if len(remaining_args) < 6:
+                    configs.set_config(channel.server.id, "Events", event_name + " / TimeOfExecution / " + remaining_args[0] + " "  + remaining_args[1] + " "  + remaining_args[2] + " "  + remaining_args[3] + " "  + remaining_args[4] + " "  + remaining_args[5])
+                    remaining_args = remaining_args[6:]
+                else:
+                    await missing_args("No time set for addevent.")
+                    return False
+
+        
+            #Args
+            #Checks if addevent needs target_member if so adds it to it's args.
+            attributes_in_event = get_required_attributes(dic["addevent"][0])
+            if "containsroles" in attributes_in_event or "haspermisson" in attributes_in_event or "addroles" in attributes_in_event:
+                remaining_args = [target_member.id] + remaining_args
+                print("test")
             configs.set_config(channel.server.id, "Events", event_name + " / Args / " + " ".join(remaining_args))
             remaining_args.clear()
+
             configs.set_config(channel.server.id, "Events", event_name + " / Enabled / true")
- 
-       
-    
-    #Getting all attributes or conditionals in object_dict
-    attribute_list = []
-    for function in object_dict["Functions"]:
-        function_dict = configs.get_config(configs.function_config, channel.server.id)[function]
-        
-        attribute_list += function_dict
-        for block in function_dict["if"]:
-            attribute_list += function_dict["if"][block]
-        for block in function_dict["ifnot"]:
-            attribute_list += function_dict["ifnot"][block]
-        
-    attribute_list = list(set(attribute_list))
-    attribute_list.remove("if")
-    attribute_list.remove("ifnot")
+
+
+    def get_required_attributes(functions):
+        attribute_list = []
+        if type(functions) == str:
+            functions = [functions]
+
+        for function in functions:
+            function_dict = configs.get_config(configs.function_config, channel.server.id)[function]
+
+            #Main
+            for object in function_dict:
+                attribute_list += [object]
+                if object == "addevent":
+                    attribute_list += get_required_attributes(function_dict[object][0])
+
+            #if
+            for block in function_dict["if"]:
+                for object in function_dict["if"][block]:
+                    attribute_list += [object]
+                    if object == "addevent":
+                        attribute_list += get_required_attributes(function_dict["if"][block][object][0])
+
+            #ifnot
+            for block in function_dict["ifnot"]:
+                for object in function_dict["ifnot"][block]:
+                    attribute_list += [object]
+                    if object == "addevent":
+                        attribute_list += get_required_attributes(function_dict["ifnot"][block][object][0])
+
+        #Removing unnecessary objects 
+        attribute_list = list(set(attribute_list))
+        if "if" in attribute_list: attribute_list.remove("if")
+        if "ifnot" in attribute_list: attribute_list.remove("ifnot")
+        return attribute_list
+
+    attribute_list = get_required_attributes(object_dict["Functions"])
 
     #Setting values
     global target_member
     target_member = None
-
+    
     arg_num = 0
     if "containsroles" in attribute_list or "haspermisson" in attribute_list or "addroles" in attribute_list:
-        target_member = discord.utils.get(channel.server.members, id = args[arg_num])
-        arg_num += 1
+        if len(args) > 0:
+            target_member = discord.utils.get(channel.server.members, id = args[arg_num])
+            arg_num += 1
+        else:
+            await missing_args("No target user set.")
+            return False
     
 
     #Args which were not assigned to a specfic var
     global remaining_args
     remaining_args = args[arg_num :]
-    print(remaining_args)
     #Execution
     for function in object_dict["Functions"]:
         function_dict = configs.get_config(configs.function_config, channel.server.id)[function]
@@ -133,4 +177,5 @@ async def execute_function(bot, channel, object_dict, args):
         for block in function_dict["ifnot"]:
             if not check_conditionals(bot, function_dict["ifnot"][block]):
                 await execute_attributes(bot, function_dict["ifnot"][block])
+    return True
 
