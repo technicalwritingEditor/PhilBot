@@ -166,7 +166,33 @@ async def execute_function(bot, channel, object_dict, args):
     arg_num = 0
     if "containsroles" in attribute_list or "haspermisson" in attribute_list or "addroles" in attribute_list:
         if len(args) > 0:
-            target_member = discord.utils.get(channel.server.members, id = args[arg_num])
+            #Trying as username
+            target_member = discord.utils.get(channel.server.members, name = args[arg_num])
+            i = 0
+            while target_member == None and i < len(args) + arg_num:
+                i += 1 
+                target_member = discord.utils.get(channel.server.members, name = " ".join(args[arg_num : arg_num + i]))
+            if target_member != None:
+                arg_num += i - 1 #-1 to correct for [:]right counting from 1 intead of 0
+
+            #Trying as nickname
+            if target_member == None:
+                target_member = discord.utils.get(channel.server.members, nick = args[arg_num])
+                i = 0
+                while target_member == None and i < len(args) + arg_num:
+                    i += 1 
+                    target_member = discord.utils.get(channel.server.members, nick = " ".join(args[arg_num : arg_num + i]))
+                if target_member != None:
+                    arg_num += i - 1 #-1 to correct for [:]right counting from 1 intead of 0
+
+
+            #Trying as user id
+            if target_member == None:
+                target_member = discord.utils.get(channel.server.members, id = args[arg_num])
+
+            if target_member == None:
+                await missing_args("User not found.")
+                return False
             arg_num += 1
         else:
             await missing_args("No target user set.")
@@ -176,6 +202,7 @@ async def execute_function(bot, channel, object_dict, args):
     #Args which were not assigned to a specfic var
     global remaining_args
     remaining_args = args[arg_num :]
+
     #Execution
     for function in object_dict["Functions"]:
         function_dict = configs.get_config(configs.function_config, channel.server.id)[function]
