@@ -61,6 +61,7 @@ def discord_events(bot):
 def config(bot):
     @bot.command(pass_context = True)
     async def config(ctx, file = None, *args):
+        "Edits specified config file."
         if file != None:
             returned_value = configs.set_config(ctx.message.channel.server.id, file, args)
             if returned_value != None:
@@ -75,10 +76,29 @@ def config(bot):
 
     @bot.command(pass_context = True)
     async def reset(ctx, arg = ""):
+        "Resets bots settings for server."
         print(ctx.message.server.name)
         if arg == ctx.message.server.name:
             shutil.rmtree("Data/" + ctx.message.server.id)
             await bot.say("**Server reset!**")
         else:
             await bot.say("**Please provide your servers exact name.**")
+
+    @bot.command(pass_context = True)
+    async def help(ctx):
+        "Shows this message."
+        message = "**Commands:**\n"
+
+        commands = {"config" : "Edits specified config file.", "reset" : "Resets bots settings for server.", "help" : "Shows this message."}
+        for command in commands:
+            if helpers.check_permisson(bot, command, ctx.message.author):
+                message += "   **" + command + "**:  " + commands[command] + "\n"
+
+        custom_commands = configs.get_config(configs.command_config, ctx.message.server.id)
+        for command in custom_commands:
+            if helpers.check_permisson(bot, command, ctx.message.author):
+                message += "   **" + command + "**:  " + custom_commands[command]["Description"] + "\n"
+
+        
+        await bot.say(message)
 

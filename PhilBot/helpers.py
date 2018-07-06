@@ -220,14 +220,14 @@ def check_permisson(bot, command_name, member):
             has_perm = True
 
         #User specific perms
-        for role in user_config[member.id]:
+        for role in user_config[member.id]["Permissions"]:
             if role == command_name:
                 has_perm = True
     
     #Role perms
     for role in member.roles:
         if role.name in configs.get_config(configs.role_config, member.server.id):
-            if command_name in configs.get_config(server.id, configs.role_config)[role.name]["Permissions"]:
+            if command_name in configs.get_config(configs.role_config, member.server.id)[role.name]["Permissions"]:
                 has_perm = True
     
   
